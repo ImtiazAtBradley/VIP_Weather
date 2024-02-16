@@ -1,6 +1,8 @@
 #ifndef __WEATHER_STATION_DEFS_H__
 #define __WEATHER_STATION_DEFS_H__
 
+#include <stdbool.h>
+
 /**
  * @brief Data structure to hold all of our weather station data
  * 
