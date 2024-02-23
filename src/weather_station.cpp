@@ -11,14 +11,6 @@
 #include <weather_station.h>
 
 //static variables???
-  typedef struct //structure, define variables
-{
-  float temp_c; //temperature
-  float pres_kpa; //pressure, in kpa(must convert to kpa)
-  float humidity; //humidity
-  bool raining; //raining or not raining, not stuff I have to worry about
-  bool sunny; // sunny or cloudy, also not stuff i have to worry about
-} weather_data_t;
 
 static DHTesp dht = DHTesp();
 
