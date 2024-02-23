@@ -26,7 +26,7 @@ static DHTesp dht = DHTesp();
 //define functions of variables, easy to repeat later in code, easy to change if need be
 float readTemperature() 
 {
-  return bme280.readTemperature();
+  return bme280.readTemperature(); //change bme280 to something else idk
 }
 float readHumididty()
 {
