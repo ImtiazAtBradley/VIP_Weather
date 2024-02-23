@@ -10,15 +10,35 @@
 
 #include <weather_station.h>
 
-/* ========================================================================== */
-/*                              STATIC VARIABLES                              */
-/* ========================================================================== */
+//static variables???
+  typedef struct //structure, define variables
+{
+  float temp_c; //temperature
+  float pres_kpa; //pressure, in kpa(must convert to kpa)
+  float humidity; //humidity
+  bool raining; //raining or not raining, not stuff I have to worry about
+  bool sunny; // sunny or cloudy, also not stuff i have to worry about
+} weather_data_t;
 
 static DHTesp dht = DHTesp();
 
-/* ========================================================================== */
-/*                              PRIVATE FUNCTIONS                             */
-/* ========================================================================== */
+//private functions???
+//define functions of variables, easy to repeat later in code, easy to change if need be
+float readTemperature() 
+{
+  return bme280.readTemperature();
+}
+float readHumididty()
+{
+  return bme280.readHumidity();
+}
+float readPressure()
+{
+  return bme280.readPressure() / 1000.0f;
+}
+//I will not define the isRaining or isSunny functions because I don't have to worry about them
+bool isRaining(){} 
+bool isSunny(){}
 
 // CONNECT THE DHT11 SIGNAL TO PIN #8!!!!!!!
 bool hal_setup_dht11() {
@@ -115,3 +135,56 @@ float ws_get_pressure() {
    */
   return -1;
 }
+
+=====================================================================================================
+        /* break between prewritten code and idk, stuff that we wrote in past weeks ig */
+=====================================================================================================
+/*  
+  typedef struct //structure, define variables
+{
+  float temp_c; //temperature
+  float pres_kpa; //pressure, in kpa(must convert to kpa)
+  float humidity; //humidity
+  bool raining; //raining or not raining, not stuff I have to worry about
+  bool sunny; // sunny or cloudy, also not stuff i have to worry about
+} weather_data_t;
+
+#include <Arduino.h> //include libraries
+#include <Adafruit_BME280.h>
+
+//define functions of variables, easy to repeat later in code, easy to change if need be
+float readTemperature() 
+{
+  return bme280.readTemperature();
+}
+float readHumididty()
+{
+  return bme280.readHumidity();
+}
+float readPressure()
+{
+  return bme280.readPressure() / 1000.0f;
+}
+
+//I will not define these functions because I don't have to worry about them
+bool isRaining(){} 
+bool isSunny(){}
+
+weather_data_t weatherData ={0}; //set the weather data equal to zero so it doesn't give trash
+Adafruit_BME280 bme280;
+
+
+void setup() 
+{
+  weatherData.temp_c = readTemperature();
+  Wire.begin(21, 22, 1000);
+  Serial.begin(115200);
+  bme280.begin();
+}
+
+void loop() 
+{
+  Serial.println(bme280.readTemperature());
+  delay(500);
+}
+*/
