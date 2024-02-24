@@ -27,7 +27,7 @@ int hal_get_water_level() {
 /* ========================================================================== */
 
 bool ws_is_raining() {
-  if (hal_get_light_level() > 0)
+  if (hal_get_water_level() > 0)
     return true;
   else
     return false;
