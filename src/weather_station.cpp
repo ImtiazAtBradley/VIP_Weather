@@ -1,6 +1,6 @@
 /**
  * @file port.c
- * @author Owen T. Joseph ojoseph@mail.bradley.edu
+ * @author Owen T. Joseph (ojoseph@mail.bradley.edu)
  * @brief This is the file where we will define all of our functions from
  * weather_station.h
  **/
