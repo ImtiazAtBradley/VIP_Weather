@@ -64,4 +64,10 @@ bool ws_is_raining();
  */
 bool ws_is_sunny();
 
+bool ws_start_soft_ap();
+
+bool ws_start_http_server();
+
+void ws_server_task();
+
 #endif
