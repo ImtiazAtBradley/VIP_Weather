@@ -54,7 +54,7 @@ static void priv_handle_success();
 /* ========================================================================== */
 
 void
-ws_website_set_data(weather_data_t* pData) {
+ws_website_set_data(const weather_data_t* pData) {
     webWeatherData = *pData;
 }
 
@@ -72,7 +72,7 @@ ws_start_soft_ap() {
 bool
 ws_start_http_server() {
     // Responds to all DNS requests with localIp, creating a captive portal
-    dnsServer.start(53, "*", localIp);
+    dnsServer.start(53, "beccweather.com", localIp);
 
     server.on("/", priv_handle_root);
     server.on("/captive-portal/api", priv_handle_captive_api);
@@ -111,49 +111,49 @@ String
 priv_get_root_page() {
 
     // Temporary buffer to store string
-    char buf[720] = {0};
+    char buf[1024] = {0};
 
     snprintf(buf, sizeof(buf),
              "<html lang=\"en\">\n"
              "<head>\n"
-             "    <meta charset=\"UTF-8\">\n"
-             "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
-             "    <title>Weather Station</title>\n"
-             "    <style>\n"
-             "    table {\n"
-             "    font-family: arial, sans-serif;\n"
-             "    border-collapse: collapse;\n"
-             "    width: 100%;\n"
-             "    }\n"
+             "<meta charset=\"UTF-8\">\n"
+             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n"
+             "<title>Weather Station</title>\n"
+             "<style>\n"
+             "table {\n"
+             "font-family: arial, sans-serif;\n"
+             "border-collapse: collapse;\n"
+             "width: 100%%;\n"
+             "}\n"
              "\n"
-             "    td, th {\n"
-             "    border: 1px solid #dddddd;\n"
-             "    text-align: left;\n"
-             "    padding: 8px;\n"
-             "    }\n"
+             "td, th {\n"
+             "border: 1px solid #dddddd;\n"
+             "text-align: left;\n"
+             "padding: 8px;\n"
+             "}\n"
              "\n"
-             "    tr:nth-child(even) {\n"
-             "    background-color: #dddddd;\n"
-             "    }\n"
+             "tr:nth-child(even) {\n"
+             "background-color: #dddddd;\n"
+             "}\n"
              "</style>\n"
              "</head>\n"
              "<body>\n"
-             "    <table>\n"
-             "        <tr>\n"
-             "          <th>Degrees C</th>\n"
-             "          <th>Humid</th>\n"
-             "          <th>Pressure</th>\n"
-             "          <th>Is Sunny</th>\n"
-             "          <th>Is Raining</th>\n"
-             "        </tr>\n"
-             "        <tr>\n"
-             "            <td>%f</td>\n"
-             "            <td>%f</td>\n"
-             "            <td>%f</td>\n"
-             "            <td>%u</td>\n"
-             "            <td>%u</td>\n"
-             "        </tr>\n"
-             "      </table> \n"
+             "<table>\n"
+             "<tr>\n"
+             "<th>Degrees C</th>\n"
+             "<th>Humid</th>\n"
+             "<th>Pressure</th>\n"
+             "<th>Is Sunny</th>\n"
+             "<th>Is Raining</th>\n"
+             "</tr>\n"
+             "<tr>\n"
+             "<td>%.2f</td>\n"
+             "<td>%.2f</td>\n"
+             "<td>%.2f</td>\n"
+             "<td>%u</td>\n"
+             "<td>%u</td>\n"
+             "</tr>\n"
+             "</table> \n"
              "</body>\n"
              "</html>",
              webWeatherData.temp_c, webWeatherData.humid, webWeatherData.pres_kpa, (uint8_t)webWeatherData.isSunny,
