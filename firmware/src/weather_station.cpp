@@ -81,8 +81,8 @@ ws_start_http_server() {
     // captive portal redirects
     // Allways redirect to captive portal. Request comes with IP (8.8.8.8) or URL
     // (connectivitycheck.XXX / captive.apple / etc.)
-    server.on("/generate_204", priv_redirect); // Android captive portal.
-    server.on("/fwlink", priv_redirect);       // Microsoft captive portal.
+    server.on("/generate_204", priv_redirect);        // Android captive portal.
+    server.on("/fwlink", priv_redirect);              // Microsoft captive portal.
 
     server.on("/connecttest.txt", priv_redirect);     // www.msftconnecttest.com
     server.on("/hotspot-detect.html", priv_redirect); // captive.apple.com
