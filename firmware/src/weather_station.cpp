@@ -57,13 +57,13 @@ static void priv_handle_success();
 int
 hal_get_light_level() {
     //lightPin = 26 max: 4095, min: 0
-    return analogRead(26);
+    return analogRead(34);
 }
 
 int
 hal_get_water_level() {
     //waterPin = 25 max: ?,    min: 0
-    return analogRead(25);
+    return analogRead(35);
 }
 
 bool
@@ -189,7 +189,7 @@ ws_start_soft_ap() {
 bool
 ws_start_http_server() {
     // Responds to all DNS requests with localIp, creating a captive portal
-    dnsServer.start(53, "beccweather.com", localIp);
+    dnsServer.start(53, "*", localIp);
 
     server.on("/", priv_handle_root);
     server.on("/captive-portal/api", priv_handle_captive_api);
