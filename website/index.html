@@ -1,0 +1,157 @@
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Station</title>
+  <style>
+    html {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    table {
+      font-family: arial, sans-serif;
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    td,
+    th {
+      border: 1px solid #dddddd;
+      text-align: left;
+      padding: 8px;
+    }
+
+    tr:nth-child(even) {
+      background-color: #dddddd;
+    }
+
+    caption {
+      caption-side: bottom;
+      text-align: start;
+      padding-top: 8px;
+      color: #27272793;
+    }
+
+    .table-container {
+      border: 5px solid rgb(255, 93, 93);
+    }
+
+    .container {
+      margin: auto;
+      width: 80%;
+      padding: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container table-container">
+    <h1 style="text-align: center;">BECC Weather Station</h1>
+    <table>
+      <tr>
+        <th>Degrees C</th>
+        <th>Humid</th>
+        <th>Pressure</th>
+        <th>Is Sunny</th>
+        <th>Is Raining</th>
+      </tr>
+      <tr>
+        <td>%.2f</td>
+        <td>%.2f</td>
+        <td>%.2f</td>
+        <td>%u</td>
+        <td>%u</td>
+      </tr>
+      <caption>NOTE: This device is under testing, and is currently displaying environment information of the:
+        <b>controls
+          lab</b>
+      </caption>
+    </table>
+  </div>
+
+  <div class="container">
+    <hr>
+
+    <h2>
+      What am I?
+    </h2>
+    <p>
+      Currently, you're looking at a web server run on an ESP32 micro-controller, which you connected to with your
+      device.
+      Right now, <strong>I'm under development by my creators, and just sitting on a table in a lab somewhere.</strong>
+    </p>
+
+    <h2>
+      How Do I Work?
+    </h2>
+    <p>
+      I have a couple sensors that are detecting things about my environment:
+    </p>
+    <ul>
+      <li>DHT11 - temp and humidity (eventually will be a bme680)</li>
+      <li>Generic Arduino Water Level Sensor - For detecting rain</li>
+      <li>Photo-resistor - For detecting if it's light out or not</li>
+    </ul>
+    <p>
+      My brain is an ESP32 micro-controller, but hopefully in the future I'll support talking to a higher-order system
+      like a linux computer, or maybe an HTTP API.
+    </p>
+
+    <h2>
+      Will I Actually Show the Weather For Real?
+    </h2>
+    <p>
+      At some point! Barring the apocalypse, of course. Currently, I'm on schedule to be up and running showing you the
+      weather by the
+      end of the semester. (Hopefully, in a far prettier manner, or even sooner than the end of the semester)
+    </p>
+
+    <h2>
+      Why No Internet When You're Connected To Me?
+    </h2>
+    <p>
+      I'm hosting my own, private, isolated network. There isn't any access to the outside world, or other devices on
+      this network. Just some weather!
+    </p>
+
+    <h2>
+      Who Made Me?
+    </h2>
+    <p>
+      I was designed as a project in the EE department by students in the ECE-398 project class. In time, I'll be an
+      easy and convenient way for students to access the Bradley University campus weather.
+    </p>
+    <p>
+      My current human
+      overlords are:
+    </p>
+    <ul>
+      <li>Kyle K.</li>
+      <li>Chris H.</li>
+      <li>Emily A.</li>
+      <li>Owen J.</li>
+      <li>Samantha S.</li>
+      <li>Jacob S.</li>
+    </ul>
+
+    <h2>Contact</h2>
+    <p>
+      Comments? Questions? Concerns? Contact: <br>
+    </p>
+    <table>
+      <tr>
+        <td>Jacob S. (ECE 398 Student)</td>
+        <td>jsimeone@mail.bradley.edu</td>
+      </tr>
+      <tr>
+        <td>Dr. Imtiaz (ECE 398 Professor)</td>
+        <td>mimtiaz@fsmail.bradley.edu</td>
+      </tr>
+    </table>
+
+  </div>
+
+</body>
+
+</html>
