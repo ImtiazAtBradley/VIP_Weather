@@ -13,8 +13,8 @@ A weather station project to inform students on Bradley University campus of cur
 For now, anyone can connect to the weather station web server hosted directly on the ESP32 microcontroller by connecting to the WiFi network hosted by that microcontroller with the following information...
 
 - SSID: `BECC Weather Station`
-- Password: `weathernow`
+- No password
 
-After connecting, the user will have to go to the url `beccweather.com` in order to access the weather web page. 
+After connecting, depending on your system, it may open automatically. If not, go to any website while using `http://`. For instance: `http://google.com`. It HAS to be HTTP, will not work with HTTPS.
 
 **NOTE:** This behavior will surely change in the future
