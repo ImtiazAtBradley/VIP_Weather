@@ -5,18 +5,23 @@
  * weather_station.h
  *
  */
+
 #include <secrets.h>
 #include <weather_station.h>
-
 #include <Arduino.h>
 // Very very crude implementations of WiFi & HTTP server functionality
 #include <DNSServer.h>
 #include <WebServer.h>
 #include <WiFi.h>
+#include <DHTesp.h>
+#include <weather_station.h>
 
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
+
+// DHT sensor
+static DHTesp dht = DHTesp();
 
 // Ip Addresses
 IPAddress localIp(192, 168, 1, 1);
@@ -35,15 +40,6 @@ weather_data_t webWeatherData = {0};
 /*                              PRIVATE FUNCTIONS                             */
 /* ========================================================================== */
 
-int hal_get_light_level() {
-  //lightPin = 26 max: 4095, min: 0
-  return analogRead(26);
-}
-
-int hal_get_water_level() {
-  //waterPin = 25 max: ?,    min: 0
-  return analogRead(25);
-}
 static String priv_get_root_page();
 
 static String priv_get_404_page();
@@ -58,22 +54,120 @@ static void priv_redirect();
 
 static void priv_handle_success();
 
+int
+hal_get_light_level() {
+    //lightPin = 26 max: 4095, min: 0
+    return analogRead(26);
+}
+
+int
+hal_get_water_level() {
+    //waterPin = 25 max: ?,    min: 0
+    return analogRead(25);
+}
+
+bool
+hal_setup_dht11() {
+    dht.setup(12, DHTesp::DHT11);
+    if (dht.getStatus() != DHTesp::ERROR_NONE) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * \brief Gets the temperature from hardware of the DHT11 sensor
+ *
+ * \return float Temperature,in degrees celsius.
+ */
+float
+hal_get_temperature_dht11() {
+    return dht.getTemperature();
+}
+
+/**
+ * \brief Gets the humidity from hardware of the DHT11 sensor
+ *
+ * \return float Humidity, in percent
+ */
+float
+hal_get_humidity_dht11() {
+    return dht.getHumidity();
+}
+
 /* ========================================================================== */
 /*                                 PUBLIC API                                 */
 /* ========================================================================== */
 
-bool ws_is_raining() {
-  if (hal_get_water_level() > 0)
-    return true;
-  else
-    return false;
+/**
+ * These are the functions that code from other files will call to use the
+ * weather station you should try to put device-specific code int he above
+ * section, "PRIVATE DEFINITIONS".
+ *
+ * REMEMBER: This is the "black box" other code uses to make the weather station
+ * do stuff. Everything that includes "weather_station.h" can see these
+ */
+
+/**
+ * @brief Initialize all sensors on the weather station
+ *
+ * @return true -> Successful initialization
+ * @return false -> Initialization failed
+ */
+bool
+ws_init_sensors() {
+    return hal_setup_dht11();
 }
 
-bool ws_is_sunny() {
-  if (hal_get_light_level() > 450)
-    return true;
-  else
-    return false;
+/**
+ * @brief Read temperature from a sensor
+ *
+ * @return float Temperature, in degrees celsius
+ */
+float
+ws_get_temperature() {
+
+    return hal_get_temperature_dht11();
+}
+
+/**
+ * @brief Read humidity from a sensor
+ *
+ * @return float Humidity, as a percent
+ */
+float
+ws_get_humidity() {
+    return hal_get_humidity_dht11();
+}
+
+/**
+ * @brief Read pressure from a sensor
+ *
+ * @return float Pressure, in kPa
+ */
+float
+ws_get_pressure() {
+    // NOTE: This function is not available right now
+    return -1;
+}
+
+bool
+ws_is_raining() {
+    if (hal_get_water_level() > 0) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool
+ws_is_sunny() {
+    if (hal_get_light_level() > 450) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void
