@@ -68,7 +68,7 @@ hal_get_water_level() {
 
 bool
 hal_setup_dht11() {
-    dht.setup(12, DHTesp::DHT11);
+    dht.setup(14, DHTesp::DHT11);
     if (dht.getStatus() != DHTesp::ERROR_NONE) {
         return false;
     }
@@ -163,11 +163,7 @@ ws_is_raining() {
 
 bool
 ws_is_sunny() {
-    if (hal_get_light_level() > 450) {
-        return true;
-    } else {
-        return false;
-    }
+    return hal_get_light_level() > 850;
 }
 
 void
@@ -202,6 +198,7 @@ ws_start_http_server() {
     server.on("/fwlink", priv_redirect);              // Microsoft captive portal.
 
     server.on("/connecttest.txt", priv_redirect);     // www.msftconnecttest.com
+    server.on("/redirect", priv_redirect);            // www.msftconnecttest.com (redirect)
     server.on("/hotspot-detect.html", priv_redirect); // captive.apple.com
 
     server.on("/success.txt",
@@ -228,7 +225,7 @@ String
 priv_get_root_page() {
 
     // Temporary buffer to store string
-    char buf[2840] = {0};
+    char buf[2848] = {0};
 
     snprintf(
         buf, sizeof(buf),
@@ -261,7 +258,7 @@ priv_get_root_page() {
         "network. Just some weather!</p><h2>Who Made Me?</h2><p>I was designed as a project in the EE department "
         "by students in the ECE-398 project class. In time, I'll be an easy and convenient way for students to "
         "access the Bradley University campus weather.</p><p>My current human overlords are:</p><ul><li>Kyle "
-        "K.</li><li>Chris H.</li><li>Emily A.</li><li>Owen J.</li><li>Samantha S.</li><li>Jacob "
+        "K.</li><li>Chris H.</li><li>Emily A.</li><li>Owen J.</li><li>Samantha P.</li><li>Jacob "
         "S.</li></ul><h2>Contact</h2><p>Comments? Questions? Concerns? Contact:<br></p><table><tr><td>Jacob S. "
         "(ECE 398 Student)</td><td>jsimeone@mail.bradley.edu</td></tr><tr><td>Dr. Imtiaz (ECE 398 "
         "Professor)</td><td>mimtiaz@fsmail.bradley.edu</td></tr></table></div></body></html>",
@@ -283,7 +280,7 @@ priv_get_404_page() {
                   "    <title>BECC Weather Station</title>\n"
                   "  </head>\n"
                   "  <body>\n"
-                  "  \t<!-- Kindly remove yourself from my source \\- The BECC Weather "
+                  "  \t<!-- Kindly remove yourself from my source - The BECC Weather "
                   "Station -->\n"
                   "        <h1>You're Not Supposed To Be Here >:(<h1>\n"
                   "  </body>\n"
@@ -305,7 +302,7 @@ priv_handle_captive_api() {}
 
 void
 priv_redirect() {
-    server.sendHeader("Location", String("http://") + localIp.toString(), true);
+    server.sendHeader("Location", String("http://") + localIp.toString() + "/", true);
     server.send(302, "text/plain",
                 "");        // Empty content inhibits Content-length header so we have to
                             // close the socket ourselves.

@@ -23,7 +23,8 @@ bool isRaining = false, isSunny = false;
 
 static weather_data_t wd = {0};
 
-void setup(){
+void
+setup() {
     Serial.begin(115200);
     ws_start_soft_ap();
     ws_start_http_server();
@@ -33,7 +34,8 @@ void setup(){
     Serial.println("Server ready");
 }
 
-void loop(){
+void
+loop() {
     ws_server_task();
 
     temp_c = ws_get_temperature();
@@ -41,7 +43,7 @@ void loop(){
     humidity = ws_get_humidity();
     pres_kpa = ws_get_pressure();
     isSunny = ws_is_sunny();
-    
+
     wd.temp_c = temp_c;
     wd.isRaining = isRaining;
     wd.humid = humidity;
