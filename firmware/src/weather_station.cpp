@@ -177,6 +177,7 @@ ws_start_soft_ap() {
     rc &= WiFi.mode(WIFI_AP);
     rc &= WiFi.softAP(WS_SSID, WS_PASS);
     rc &= WiFi.softAPConfig(localIp, gatewayIp, subnet);
+    rc &= WiFi.setTxPower(WIFI_POWER_19_5dBm);
     delay(100);
 
     return rc;
@@ -188,7 +189,6 @@ ws_start_http_server() {
     dnsServer.start(53, "*", localIp);
 
     server.on("/", priv_handle_root);
-    server.on("/captive-portal/api", priv_handle_captive_api);
     // Credit to:
     // https://github.com/HerrRiebmann/Caravan_Leveler/blob/main/Webserver.ino for
     // captive portal redirects
@@ -298,9 +298,6 @@ void
 priv_handle_404() {
     server.send(404, "text/html", priv_get_404_page());
 }
-
-void
-priv_handle_captive_api() {}
 
 void
 priv_redirect() {
