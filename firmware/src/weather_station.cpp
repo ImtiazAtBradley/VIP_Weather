@@ -239,7 +239,7 @@ priv_get_root_page() {
         "text-align:start;padding-top:8px;color:#27272793}.table-container{border:5px solid "
         "#ff5d5d}.container{margin:auto;width:80%%;padding:10px}</style></head><body><div class=\"container "
         "table-container\"><h1 style=\"text-align:center\">BECC Weather Station</h1><table><tr><th>Degrees "
-        "C</th><th>Humid</th><th>Pressure</th></tr><tr><td>%.2f</td><td>%.2f</td><td>%.2f</td></tr></"
+        "F</th><th>Humid</th><th>Pressure</th></tr><tr><td>%.2f</td><td>%.2f</td><td>%.2f</td></tr></"
         "table><table><tr><th>Is Sunny</th><th>Is "
         "Raining</th></tr><tr><td>%u</td><td>%u</td></tr><caption>NOTE: "
         "This device is under testing, and is currently displaying environment information of the:<b>controls "
@@ -264,8 +264,8 @@ priv_get_root_page() {
         "S.</li></ul><h2>Contact</h2><p>Comments? Questions? Concerns? Contact:<br></p><table><tr><td>Jacob S. "
         "(ECE 398 Student)</td><td>jsimeone@mail.bradley.edu</td></tr><tr><td>Dr. Imtiaz (ECE 398 "
         "Professor)</td><td>mimtiaz@fsmail.bradley.edu</td></tr></table></div></body></html>",
-        webWeatherData.temp_c, webWeatherData.humid, webWeatherData.pres_kpa, (uint8_t)webWeatherData.isSunny,
-        (uint8_t)webWeatherData.isRaining);
+        webWeatherData.temp_c * (1.8f) + 32, webWeatherData.humid, webWeatherData.pres_kpa,
+        (uint8_t)webWeatherData.isSunny, (uint8_t)webWeatherData.isRaining);
 
     return String(buf);
 }
