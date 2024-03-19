@@ -23,13 +23,21 @@ bool isRaining = false, isSunny = false;
 
 static weather_data_t wd = {0};
 
+static long lastRead = 0;
+
 void
 setup() {
     Serial.begin(115200);
     ws_start_soft_ap();
     ws_start_http_server();
 
-    ws_init_sensors();
+    if (!ws_init_sensors()) {
+        Serial.println("Failed to initialize sensors");
+        while (1)
+            ;
+    } else {
+        Serial.println("Successfully Initialized Sensors");
+    }
 
     Serial.println("Server ready");
 }
@@ -51,6 +59,25 @@ loop() {
     wd.isSunny = isSunny;
 
     ws_website_set_data(&wd);
+
+    if (millis() - lastRead > 500) {
+        Serial.print("Temperature....");
+        Serial.println(temp_c);
+
+        Serial.print("Pressure.......");
+        Serial.println(pres_kpa);
+
+        Serial.print("Humidity.......");
+        Serial.println(humidity);
+
+        Serial.print("Water Level....");
+        Serial.println(analogRead(33));
+
+        Serial.print("Light Level....");
+        Serial.println(analogRead(32));
+
+        lastRead = millis();
+    }
 
     delay(15);
 }
