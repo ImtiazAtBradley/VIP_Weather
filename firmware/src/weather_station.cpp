@@ -13,15 +13,16 @@
 #include <DNSServer.h>
 #include <WebServer.h>
 #include <WiFi.h>
-#include <DHTesp.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BME280.h>
 #include <weather_station.h>
 
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
 
-// DHT sensor
-static DHTesp dht = DHTesp();
+// BME280
+Adafruit_BME280 bme; // I2C
 
 // Ip Addresses
 IPAddress localIp(192, 168, 1, 1);
@@ -56,24 +57,19 @@ static void priv_handle_success();
 
 int
 hal_get_light_level() {
-    //lightPin = 26 max: 4095, min: 0
-    return analogRead(34);
+    //lightPin = 32 max: 4095, min: 0
+    return analogRead(32);
 }
 
 int
 hal_get_water_level() {
-    //waterPin = 25 max: ?,    min: 0
-    return analogRead(35);
+    //waterPin = 33 max: ?,    min: 0
+    return analogRead(33);
 }
 
 bool
-hal_setup_dht11() {
-    dht.setup(14, DHTesp::DHT11);
-    if (dht.getStatus() != DHTesp::ERROR_NONE) {
-        return false;
-    }
-
-    return true;
+hal_setup_bme() {
+    return bme.begin(BME280_ADDRESS_ALTERNATE);
 }
 
 /**
@@ -82,8 +78,8 @@ hal_setup_dht11() {
  * \return float Temperature,in degrees celsius.
  */
 float
-hal_get_temperature_dht11() {
-    return dht.getTemperature();
+hal_get_temperature_bme() {
+    return bme.readTemperature();
 }
 
 /**
@@ -92,8 +88,18 @@ hal_get_temperature_dht11() {
  * \return float Humidity, in percent
  */
 float
-hal_get_humidity_dht11() {
-    return dht.getHumidity();
+hal_get_humidity_bme() {
+    return bme.readHumidity();
+}
+
+/**
+ * @brief Read the current pressure, from the bme280
+ * 
+ * @return float Pressure, in pascals
+ */
+float
+hal_get_pressure_bme() {
+    return bme.readPressure();
 }
 
 /* ========================================================================== */
@@ -117,7 +123,10 @@ hal_get_humidity_dht11() {
  */
 bool
 ws_init_sensors() {
-    return hal_setup_dht11();
+
+    Wire.begin(21, 22, 5000);
+
+    return hal_setup_bme();
 }
 
 /**
@@ -128,7 +137,7 @@ ws_init_sensors() {
 float
 ws_get_temperature() {
 
-    return hal_get_temperature_dht11();
+    return hal_get_temperature_bme();
 }
 
 /**
@@ -138,7 +147,7 @@ ws_get_temperature() {
  */
 float
 ws_get_humidity() {
-    return hal_get_humidity_dht11();
+    return hal_get_humidity_bme();
 }
 
 /**
@@ -148,8 +157,7 @@ ws_get_humidity() {
  */
 float
 ws_get_pressure() {
-    // NOTE: This function is not available right now
-    return -1;
+    return hal_get_pressure_bme() / 1000.0f; // Convert o kPa
 }
 
 bool
