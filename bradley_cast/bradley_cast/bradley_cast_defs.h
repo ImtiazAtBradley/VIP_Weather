@@ -13,7 +13,6 @@
 #define __BRADLEY_CAST_DEFS_H__
 
 #include <stdint.h>
-#include <vcruntime.h>
 
 /* ================================================== */
 /*                   UNITS - SCALE                    */
@@ -27,12 +26,14 @@
 /*                MESSAGE LEN (BTYES)                 */
 /* ================================================== */
 
-#define BC_ID_LEN           (8)
+#define STATION_ID_LEN      (4)
 #define MSG_ID_LEN          (2)
 #define TEMP_LEN            (2)
 #define HUMID_LEN           (2)
 #define PRESSURE_LEN        (2)
 #define RCSG_LEN            (1)
+
+#define MSG_HEAD_LEN (STATION_ID_LEN + MSG_ID_LEN)
 
 /* ================================================== */
 /*                    ENUMERATIONS                    */
@@ -60,7 +61,7 @@ typedef enum
 
 typedef struct
 {
-   uint64_t station_id;
+   uint32_t station_id;
    uint16_t msg_id;
    void *msg_paylod;
    size_t payload_len;

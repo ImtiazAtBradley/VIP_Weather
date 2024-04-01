@@ -9,6 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(bradley-cast-lib STATIC 
   env_msg.c
+  bradley_cast.c
 )
 if(WIN32)
   target_link_libraries(bradley-cast-lib wsock32)

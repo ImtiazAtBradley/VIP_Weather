@@ -1,5 +1,7 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "bradley_cast.h"
 
 #if defined(__linux__)
 #include "arpa/inet.h"
@@ -28,24 +30,32 @@ get_env_payload(const bc_env_data_t *const pEnvData, uint8_t (*payloadBuffer)[MS
    return 0;
 }
 
+static int
+parse_env_payload(bc_env_data_t *const pEnvData, uint8_t *payloadBuffer, size_t len)
+{
+   if (len != MSG_ENV_LEN){
+      return -1;
+   }
+
+   pEnvData->temp_c = (float)ntohs(*((uint16_t *)(payloadBuffer + 0))) / TEMPERATURE_SCALE_C;
+   pEnvData->humid_prcnt = (float)ntohs(*((uint16_t *)(payloadBuffer + 2))) / HUMID_SCALE_PERCENT;
+   pEnvData->press_kpa = (float)ntohs(*((uint16_t *)(payloadBuffer + 4))) / PRESSURE_SCALE_KPA;
+
+   pEnvData->is_rainy = *((uint16_t *)(payloadBuffer + 6)) & MSG_ENV_BITMSK_RAIN;
+   pEnvData->light_level = (*((uint16_t *)(payloadBuffer + 6)) & MSG_ENV_BITMSK_SCG) >> 1;
+
+   return 0;
+}
+
 int
-bc_build_env_msg(const uint64_t stationId, bc_env_data_t *const pEnvData, bc_msg_t *const pMsg)
+bc_build_env_msg(const uint32_t stationId, bc_env_data_t *const pEnvData, bc_msg_t *const pMsg)
 {
 
    uint8_t payloadBuf[MSG_ENV_LEN] = {0};
-   void *buf;
 
    if (pEnvData == NULL || pMsg == NULL)
    {
       // Failure by null pointer
-      return -1;
-   }
-
-   // Allocate memory for payload. THIS NEEDS TO BE FREED LATER
-   // WITH bc_free_msg_payload()
-   if ((buf = malloc(MSG_ENV_LEN)) == NULL)
-   {
-      // Fail by no mem
       return -1;
    }
 
@@ -55,15 +65,39 @@ bc_build_env_msg(const uint64_t stationId, bc_env_data_t *const pEnvData, bc_msg
       return -1;
    }
 
-   pMsg->station_id = stationId;
-   pMsg->msg_id = MSG_ENV_ID;
-   pMsg->payload_len = MSG_ENV_LEN;
-   // Point to newly allocated buffer to store payload in
-   pMsg->msg_paylod = buf;
+   if (bc_msg_init(stationId, MSG_ENV_ID, MSG_ENV_LEN, pMsg) != 0){
+      // Failure by init function fail
+      return -1;
+   }
 
-   // NOTE: Some systems provie safer versions of memcpy(), but for portability,
-   //   just use it directly from standard string.h
-   memcpy(pMsg->msg_paylod, &payloadBuf, MSG_ENV_LEN);
+   // Copy data into payload buffer of message
+   memcpy(pMsg->msg_paylod, payloadBuf, pMsg->payload_len);
+
+   return 0;
+}
+
+// TODO: Move bc_msg_t specific parsing to a function in bradley_cast.c, this function should only be responsible
+//   for parsing the payload of the enviornment message.
+int
+bc_parse_env_msg(bc_env_data_t *const pEnvData, bc_msg_t *const pMsg)
+{
+
+   if (pEnvData == NULL || pMsg == NULL || pMsg->msg_paylod == NULL)
+   {
+      // Failure by null pointer
+      return -1;
+   }
+
+   if (pMsg->payload_len != MSG_ENV_LEN){
+      // Failure by invalid payload length
+      return -1;
+   }
+
+   // This assumption can be made because we checked size earlier
+   if (parse_env_payload(pEnvData, pMsg->msg_paylod, pMsg->payload_len) != 0){
+      // Failure by parse failure
+      return -1;
+   }
 
    return 0;
 }
