@@ -49,7 +49,7 @@ static void priv_handle_root();
 
 static void priv_handle_404();
 
-static void priv_handle_captive_api();
+static String priv_get_api_env_data();
 
 static void priv_redirect();
 
@@ -195,8 +195,9 @@ bool
 ws_start_http_server() {
     // Responds to all DNS requests with localIp, creating a captive portal
     dnsServer.start(53, "*", localIp);
-
-    server.on("/", priv_handle_root);
+    server.on("/", priv_get_api_env_data);
+    //server.on("/", priv_handle_root);
+    //server.on("/api/envData", priv_get_api_env_data);
     // Credit to:
     // https://github.com/HerrRiebmann/Caravan_Leveler/blob/main/Webserver.ino for
     // captive portal redirects
@@ -274,6 +275,25 @@ priv_get_root_page() {
         "Professor)</td><td>mimtiaz@fsmail.bradley.edu</td></tr></table></div></body></html>",
         webWeatherData.temp_c * (1.8f) + 32, webWeatherData.humid, webWeatherData.pres_kpa,
         (uint8_t)webWeatherData.isSunny, (uint8_t)webWeatherData.isRaining);
+
+    return String(buf);
+}
+
+String
+priv_get_api_env_data()
+{
+    char buf[512] = {0};
+
+    snprintf(
+        buf,
+        sizeof(buf),
+        "{ \"humid_percent\" : %.2f, \"temp_c\" : %.2f, \"press_kpa\" : %.2f, \"isRaining\" : %u, \"isSunny\" : %u}",
+        webWeatherData.humid,
+        webWeatherData.temp_c,
+        webWeatherData.pres_kpa,
+        webWeatherData.isRaining,
+        webWeatherData.isSunny
+    );
 
     return String(buf);
 }
