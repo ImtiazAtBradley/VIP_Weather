@@ -1,11 +1,16 @@
 #include "broker.h"
 #include "broker_database.h"
 #include "constants.h"
+#include <chrono>
+#include <ratio>
 #include <string>
 #include <iostream>
 #include <sys/stat.h>
 
-Broker::Broker(BrokerDatabase &brokerDb) : m_database(brokerDb) {}
+Broker::Broker(BrokerDatabase &brokerDb, std::chrono::milliseconds schedulerTimeMs)
+    : m_database(brokerDb), m_frequency_ms(schedulerTimeMs)
+{
+}
 
 Broker::Broker(BrokerDatabase &&brokerDb) : m_database(brokerDb) {}
 
@@ -43,7 +48,7 @@ Broker::validateUserInput(int argc, char *argv[])
 }
 
 void
-Broker::programHeader()
+Broker::printProgramHeader()
 {
    std::cout << "Bradley Cast Broker V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
              << bc_broker::version::patch << "\n";
@@ -61,6 +66,23 @@ Broker::getDbError()
    return m_database.getErr();
 }
 
+bool
+Broker::runScheduler()
+{
+
+   auto now = std::chrono::high_resolution_clock::now();
+
+   if (std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastRunTime_ms) > m_frequency_ms)
+   {
+      // Run internal tasks
+      runTasks();
+      m_lastRunTime_ms = std::chrono::high_resolution_clock::now();
+      return true; // Ran tasks
+   }
+
+   return false;
+}
+
 // ============================== PRIVATE FUNCTIONS ==============================
 
 /*
@@ -74,4 +96,9 @@ Broker::fileExists(const std::string &name)
    // NOTE: This *does* check for existence, but has quite a few other
    //   failure modes. For now, we'll just check for existence with this
    return (stat(name.c_str(), &buffer) == 0);
+}
+
+void
+Broker::runTasks()
+{
 }

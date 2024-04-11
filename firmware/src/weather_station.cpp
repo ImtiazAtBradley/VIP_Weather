@@ -6,6 +6,7 @@
  *
  */
 
+#include <cstdio>
 #include <secrets.h>
 #include <weather_station.h>
 #include <Arduino.h>
@@ -46,6 +47,8 @@ static String priv_get_root_page();
 static String priv_get_404_page();
 
 static void priv_handle_root();
+
+static String priv_get_api_env_data();
 
 static void priv_handle_404();
 
@@ -197,6 +200,7 @@ ws_start_http_server() {
     dnsServer.start(53, "*", localIp);
 
     server.on("/", priv_handle_root);
+    server.on("/api/envData", priv_get_api_env_data());
     // Credit to:
     // https://github.com/HerrRiebmann/Caravan_Leveler/blob/main/Webserver.ino for
     // captive portal redirects
@@ -277,6 +281,23 @@ priv_get_root_page() {
 
     return String(buf);
 }
+
+String
+priv_get_api_env_data() {
+
+    char buf[512] = {0};
+
+    snprintf(
+        buf,
+        sizeof(buf),
+        "{ \"humid_percent\" : %.2f, \"temp_c\" : %f, }",
+        webWeatherData.humid,
+        webWeatherData.temp_c,
+    );
+
+    return String(buf);
+}
+
 
 String
 priv_get_404_page() {

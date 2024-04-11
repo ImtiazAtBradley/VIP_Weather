@@ -1,31 +1,36 @@
 #include "broker_database.h"
 
+#include <hiredis/hiredis.h>
+#include <sys/time.h>
 #include <string>
 #include <iostream>
 
-BrokerDatabase::BrokerDatabase(const std::string &redisIp, int redisPort)
+BrokerDatabase::BrokerDatabase(const std::string &redisIp, const int redisPort, const int timeout_s)
 {
-   std::cout << "Called normal constructor with redisIP: " << redisIp << " port: " << redisPort << "\n";
-   p_dbContext.reset(redisConnect(redisIp.c_str(), redisPort));
+   std::cout << "[DEBUG] Called normal constructor with redisIP: " << redisIp << " port: " << redisPort << "\n";
+
+   struct timeval timeout = {};
+   timeout.tv_sec = timeout_s;
+
+   p_dbContext.reset(redisConnectWithTimeout(redisIp.c_str(), redisPort, timeout));
 }
 
 BrokerDatabase::BrokerDatabase(BrokerDatabase &other)
 {
-   std::cout << "Called copy constructor\n";
+   std::cout << "[DEBUG] Called copy constructor\n";
    p_dbContext = std::move(other.p_dbContext);
 }
 
 BrokerDatabase::BrokerDatabase(BrokerDatabase &&other)
 {
-   std::cout << "Called move constructor\n";
+   std::cout << "[DEBUG] Called move constructor\n";
    p_dbContext = std::move(other.p_dbContext);
 }
 
 bool
 BrokerDatabase::good() const
 {
-   return false;
-   return !p_dbContext || p_dbContext->err != 0;
+   return !p_dbContext || p_dbContext->err == 0;
 }
 
 std::string
@@ -52,10 +57,9 @@ BrokerDatabase::getErrNum() const
    return -1;
 }
 
-BrokerDatabase::~BrokerDatabase()
+void
+BrokerDatabase::freeRedis(redisContext *ptr)
 {
-   std::cout << "Called Destructor";
-   // Free the various stuff
-   redisFree(p_dbContext.get());
-   p_dbContext.reset();
+   std::cout << "[DEBUG] Called redis deleter\n";
+   redisFree(ptr);
 }

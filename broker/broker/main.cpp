@@ -1,4 +1,6 @@
+#include <chrono>
 #include <iostream>
+#include <ratio>
 #include <sys/stat.h>
 #include <hiredis/hiredis.h>
 #include <cstdlib>
@@ -11,28 +13,28 @@
 int
 main(int argc, char *argv[])
 {
-   std::cout << "HELLO, WORLD!\n" << std::endl;
-
-   BrokerDatabase brokerDb(bc_broker::redis::ip, bc_broker::redis::port);
-   Broker broker = Broker(brokerDb);
+   BrokerDatabase brokerDb(bc_broker::redis::ip, bc_broker::redis::port, 3);
+   // Run broker scheduler every 20ms
+   Broker broker = Broker(brokerDb, std::chrono::duration<int, std::milli>(20));
 
    // Print program header
-   broker.programHeader();
+   broker.printProgramHeader();
 
    // GET SERIAL PORT FROM USER, IF PRESENT
-   // TODO: Make sure to remove the "or true" which is for debugging
-   if (!broker.validateUserInput(argc, argv) || true)
+   if (!broker.validateUserInput(argc, argv))
    {
       std::cout << "INVALID INPUT. SEE USAGE:\n" << std::endl;
       broker.help();
       exit(EXIT_FAILURE);
    }
 
-   std::cout << "Fake connecting to serial file... " << argv[1] << "\n";
+   // ! TESTING: REMOVEME
+   std::cout << "[DEBUG] Fake connecting to serial file... " << argv[1] << "\n";
+   // ! END REMOVEME
 
    // TRY TO CONNECT TO REDIS SERVER
 
-   if (broker.dbGood())
+   if (!broker.dbGood())
    {
       std::cerr << "Connection to redis DB failed\n";
       std::cerr << "hiredis Error: " << broker.getDbError();
