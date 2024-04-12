@@ -24,6 +24,7 @@ bool isRaining = false, isSunny = false;
 static weather_data_t wd = {0};
 
 static long lastRead = 0;
+static long lastTransmit = 0;
 
 void
 setup() {
@@ -71,6 +72,21 @@ loop() {
         Serial.println(analogRead(32));
 
         lastRead = millis();
+    }
+
+    if(millis() - lastTransmit > 10000) {
+
+        String temp_c, humid, pres_kpa, isRaining, lightLevel;
+        temp_c = String(wd.temp_c);
+        humid = String(wd.humid);
+        pres_kpa = String(wd.pres_kpa);
+        isRaining = String(wd.isRaining);
+        lightLevel = String(wd.isSunny);
+        String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|R" + isRaining + "|L" + lightLevel;
+
+        ws_tx_data(1, d);
+
+        lastTransmit = millis();
     }
 
     delay(15);

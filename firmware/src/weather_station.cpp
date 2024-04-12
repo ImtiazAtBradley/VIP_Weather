@@ -70,6 +70,28 @@ hal_get_pressure_bme() {
     return bme.readPressure();
 }
 
+void reset_radio(int rstPin){
+
+  digitalWrite(rstPin, LOW);
+  // 5 ms should be more than enough
+  delay(5);
+  digitalWrite(rstPin, HIGH);
+}
+
+void send_cmd(const String& str){
+  //Serial2.print(str + "\r\n");
+  Serial.print(str + "\r\n");
+}
+
+void set_address(int address){
+  send_cmd("AT+ADDRESS=" + String(address));
+}
+
+void send_data(const int address, const String& data){
+  String command = "AT+SEND=" + String(address) + "," + String(data.length()) + "," + data;
+  send_cmd(command);
+}
+
 /* ========================================================================== */
 /*                                 PUBLIC API                                 */
 /* ========================================================================== */
@@ -93,6 +115,11 @@ bool
 ws_init_sensors() {
 
     Wire.begin(21, 22, 5000);
+
+    Serial2.begin(115200);
+
+    reset_radio(23);
+    set_address(0);
 
     return hal_setup_bme();
 }
@@ -140,4 +167,8 @@ ws_is_raining() {
 bool
 ws_is_sunny() {
     return hal_get_light_level() > 850;
+}
+
+void ws_tx_data(int address, const String& data){
+    send_data(address, data);
 }

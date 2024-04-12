@@ -1,6 +1,7 @@
 #ifndef __WEATHER_STATION_DEFS_H__
 #define __WEATHER_STATION_DEFS_H__
 
+#include <Arduino.h>
 #include <stdbool.h>
 
 /**
@@ -63,5 +64,7 @@ bool ws_is_raining();
  * @return false -> Not currently sunny
  */
 bool ws_is_sunny();
+
+void ws_tx_data(int address, const String& data);
 
 #endif
