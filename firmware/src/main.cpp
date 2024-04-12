@@ -28,8 +28,6 @@ static long lastRead = 0;
 void
 setup() {
     Serial.begin(115200);
-    ws_start_soft_ap();
-    ws_start_http_server();
 
     if (!ws_init_sensors()) {
         Serial.println("Failed to initialize sensors");
@@ -44,8 +42,6 @@ setup() {
 
 void
 loop() {
-    ws_server_task();
-
     temp_c = ws_get_temperature();
     isRaining = ws_is_raining();
     humidity = ws_get_humidity();
@@ -57,8 +53,6 @@ loop() {
     wd.humid = humidity;
     wd.pres_kpa = pres_kpa;
     wd.isSunny = isSunny;
-
-    ws_website_set_data(&wd);
 
     if (millis() - lastRead > 500) {
         Serial.print("Temperature....");
