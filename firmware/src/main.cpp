@@ -30,6 +30,8 @@ void
 setup() {
     Serial.begin(115200);
 
+    Serial.println("BOOTING...");
+
     if (!ws_init_sensors()) {
         Serial.println("Failed to initialize sensors");
         while (1)
@@ -38,7 +40,7 @@ setup() {
         Serial.println("Successfully Initialized Sensors");
     }
 
-    Serial.println("Server ready");
+    Serial.println("BOOT OK");
 }
 
 void
@@ -55,23 +57,20 @@ loop() {
     wd.pres_kpa = pres_kpa;
     wd.isSunny = isSunny;
 
-    if (millis() - lastRead > 500) {
-        Serial.print("Temperature....");
-        Serial.println(temp_c);
+    if (millis() - lastTransmit > 10000) {
 
-        Serial.print("Pressure.......");
-        Serial.println(pres_kpa);
+        // CODE HERE
+        String temp_c, humid, press_kpa, isRaining, lightLevel;
+        temp_c = String(wd.temp_c);
+        humid = String(wd.humid);
+        press_kpa = String(wd.pres_kpa);
+        isRaining = String(wd.isRaining);
+        lightLevel = String(wd.isSunny);
+        String d = "T" + temp_c + "|H" + humid + "|P" + press_kpa + "|R" + isRaining + "|L" + lightLevel;
 
-        Serial.print("Humidity.......");
-        Serial.println(humidity);
+        ws_tx_data(1, d);
 
-        Serial.print("Water Level....");
-        Serial.println(analogRead(33));
-
-        Serial.print("Light Level....");
-        Serial.println(analogRead(32));
-
-        lastRead = millis();
+        lastTransmit = millis();
     }
 
     if(millis() - lastTransmit > 10000) {
