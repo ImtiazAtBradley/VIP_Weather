@@ -1,4 +1,4 @@
-## Becc Website using Next.js
+## Becc Weather Website using Next.js
 
 This is the starter template for the Next.js App Router Course. It has been modified for the use of the becc weather station.
 
