@@ -3,7 +3,7 @@ import { WiDaySunny } from "react-icons/wi"
 export default function WeatherCard() {
     return (
         <div className="mt-3 mb-3 p-10">
-            <div className="flex flex-row items-center">
+            <div className="flex md:flex-row flex-col items-center">
                 <WiDaySunny className="h-36 w-36 text-yellow-300" />
                 <div className="justify-evenly">
                     <span className="text-6xl font-semibold text-slate-600">25.6&deg;F</span>

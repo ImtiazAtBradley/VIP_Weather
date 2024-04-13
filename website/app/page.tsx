@@ -44,17 +44,17 @@ export const humidity = [
 
 export default function Page() {
   return (
-    <main className="flex flex-col p-6 h-screen">
+    <main className="flex flex-col md:p-6 p-2 h-screen">
       <div className="flex itmes-center md:h-28 h-20 rounded-lg bg-red-500 p-4">
         <WeatherStationLogo />
       </div>
       <div className="flex justify-center">
         <WeatherCard />
       </div>
-      <div className={`${RedHatDisplay.className} flex mt-5 justify-center text-5xl`}>
-        <h1>Current Environment Data</h1>
+      <div className={`${RedHatDisplay.className} flex mt-5 justify-center md:text-5xl text-3xl`}>
+        <h1 className="text-center">Current Environment Data</h1>
       </div>
-      <div className="grid grid-cols-2 mt-3 p-4">
+      <div className="grid md:grid-cols-2 grid-cols-1 mt-3 p-4">
         <EnvironmentLineGraph label="Degrees C" title="Temperature" color="rgb(255, 0, 0)" backgroundColor="rgba(255, 0, 0, 0.5" d={temperature} />
         <EnvironmentLineGraph label="Percent" title="Humidity" color="rgb(0, 255, 0)" backgroundColor="rgba(0, 255, 0, 0.5)" d={humidity} />
         <EnvironmentLineGraph label="kPa" title="Pressure" color="rgb(0, 0, 255)" backgroundColor="rgba(0, 0, 255, 0.5)" d={pressure} />
