@@ -23,45 +23,37 @@ ChartJS.register(
     Legend
 );
 
-export const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        legend: {
-            position: 'top' as const,
-        },
-        title: {
-            display: true,
-            text: 'Environment Data',
-        },
-    },
-};
+export default function EnvironmentLineGraph({ label, title, color, backgroundColor, d }: { label: string, title: string, color: string, backgroundColor: string, d: { time: string, val: number }[] }) {
 
-export const temps = [
-    { "time": "1", "temp": 34.1 },
-    { "time": "2", "temp": 36.4 },
-    { "time": "3", "temp": 39.1 },
-    { "time": "4", "temp": 41.2 },
-    { "time": "5", "temp": 45.9 },
-    { "time": "6", "temp": 50.5 },
-    { "time": "7", "temp": 53.7 },
-    { "time": "8", "temp": 60.7 },
-    { "time": "9", "temp": 56.9 },
-    { "time": "10", "temp": 45.3 },
-]
+    let data = {
+        labels: d.map(x => x.time),
+        datasets: [
+            {
+                label: label,
+                data: d.map(x => x.val),
+                borderColor: color,
+                backgroundColor: backgroundColor,
+            }
+        ]
+    }
 
-export const data = {
-    labels: temps.map(t => t.time),
-    datasets: [
-        {
-            label: 'Temperature',
-            data: temps.map(t => t.temp),
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+    let options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top' as const,
+            },
+            title: {
+                display: true,
+                text: title,
+            },
         },
-    ],
-};
+    }
 
-export function EnvironmentLineGraph() {
-    return <Line options={options} data={data} />;
+    return (
+        <div className='flex h-96'>
+            <Line options={options} data={data} />
+        </div>
+    )
 }
