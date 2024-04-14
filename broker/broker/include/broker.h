@@ -20,6 +20,7 @@ class Broker
    bool runScheduler();
    bool setupSerialPort();
    bool writeToPort(const std::string &val);
+   std::string readFromPort();
 
  private:
    bool fileExists();

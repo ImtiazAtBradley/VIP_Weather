@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 
    BrokerDatabase brokerDb(bc_broker::redis::ip, bc_broker::redis::port, 3);
    // Run broker scheduler every 20ms
-   Broker broker = Broker(brokerDb, std::chrono::duration<int, std::milli>(20), argv[1]);
+   Broker broker = Broker(brokerDb, std::chrono::duration<int, std::milli>(100), argv[1]);
 
    // Print program header
    Broker::printProgramHeader();
@@ -46,11 +46,10 @@ main(int argc, char *argv[])
       std::cerr << "hiredis Error: " << broker.getDbError() << "\n";
       exit(EXIT_FAILURE);
    }
-   std::cout << "Successfully connected to database\n";
+   std::cout << "[INFO] Successfully connected to database\n";
 
-   // Do a test write
-   for (size_t i = 0; i < 50; ++i){
-      broker.writeToPort("Some long string to put on the port, and hopefully I will see this");
+   while(1) {
+      broker.runScheduler();
    }
 }
 

@@ -1,15 +1,21 @@
 #include "broker.h"
+#include "MessageParse.h"
+#include "WeatherData.h"
 #include "broker_database.h"
 #include "constants.h"
 #include <chrono>
+#include <optional>
 #include <ratio>
 #include <stdexcept>
 #include <string>
 #include <iostream>
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <vector>
+#include <cstring>
 
 Broker::Broker(BrokerDatabase &brokerDb, std::chrono::milliseconds schedulerTimeMs, std::string path)
     : m_database(brokerDb), m_frequency_ms(schedulerTimeMs), m_filePath(path)
@@ -33,7 +39,7 @@ void
 Broker::printProgramHeader()
 {
    std::cout << "BRADLEY CAST BROKER V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
-             << bc_broker::version::patch << "\n";
+             << bc_broker::version::patch << "\n\n";
 }
 
 bool
@@ -42,7 +48,9 @@ Broker::dbGood()
    return m_database.good();
 }
 
-bool Broker::serialFileGood(){
+bool
+Broker::serialFileGood()
+{
    return fileExists();
 }
 
@@ -55,7 +63,6 @@ Broker::getDbError()
 bool
 Broker::runScheduler()
 {
-
    auto now = std::chrono::high_resolution_clock::now();
 
    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - m_lastRunTime_ms) > m_frequency_ms)
@@ -69,12 +76,15 @@ Broker::runScheduler()
    return false;
 }
 
-bool Broker::setupSerialPort(){
+bool
+Broker::setupSerialPort()
+{
    int file, rc;
    struct termios options;
 
-   file = open(m_filePath.c_str(), O_RDWR);
-   if (file < 0){
+   file = open(m_filePath.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
+   if (file < 0)
+   {
       return false;
    }
    m_fd = file;
@@ -84,39 +94,65 @@ bool Broker::setupSerialPort(){
    cfsetospeed(&options, B115200);
 
    // Input settings
-   options.c_iflag &= ~(IGNPAR | IGNBRK | BRKINT | ISTRIP | INLCR | IXON | INPCK);
-   options.c_iflag |= (IGNCR);
-   options.c_oflag &= ~(OPOST | ONLCR | OCRNL | ONLRET);
-   options.c_oflag |= (ONOCR);
-   options.c_cflag &= (CSIZE | CSTOPB | PARENB);
-   options.c_cflag |= (CS8);
-   options.c_lflag &= ~(ISIG | ECHO | ECHOE | ECHOK | ECHONL | IEXTEN);
-   options.c_lflag |= (ICANON);
+   options.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IXON | IXOFF | IXANY);
+   options.c_oflag &= ~OPOST;
+   options.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+   options.c_cflag &= ~(CSIZE | PARENB);
+   options.c_cflag |= (CS8 | CLOCAL | CREAD);
+
+   options.c_cc[VMIN] = 0;
+   options.c_cc[VTIME] = 0;
 
    rc = tcsetattr(file, TCSANOW, &options);
 
-   if (rc == 0){
+   if (rc == 0)
+   {
       m_serialUp = true;
       return true;
-   } else {
+   }
+   else
+   {
       return false;
    }
 }
 
-bool Broker::writeToPort(const std::string& val){
-   if (!m_serialUp){
-      if(!setupSerialPort()){
+bool
+Broker::writeToPort(const std::string &val)
+{
+   if (!m_serialUp)
+   {
+      if (!setupSerialPort())
+      {
          return false;
       }
    }
 
-   if (val.size() <= 0){
+   if (val.size() <= 0)
+   {
       return false;
    }
 
    size_t txNum = write(m_fd, val.c_str(), val.size());
 
    return txNum == val.size();
+}
+
+std::string
+Broker::readFromPort()
+{
+   char buf[128] = {0};
+
+   if (!m_serialUp)
+   {
+      if (!setupSerialPort())
+      {
+         return "";
+      }
+   }
+
+   ssize_t rxNum = read(m_fd, buf, sizeof(buf));
+
+   return std::string(buf, strlen(buf));
 }
 
 // ============================== PRIVATE FUNCTIONS ==============================
@@ -132,11 +168,28 @@ Broker::fileExists()
    return (stat(m_filePath.c_str(), &buffer) == 0);
 }
 
-void Broker::runTasks() {
-   // Do nothing for now
+void
+Broker::runTasks()
+{
+   // Try to receive from buffer, and print to standard out
+   std::string rcv = readFromPort();
+   std::optional<WeatherData> weatherData;
+
+   if (rcv.size() > 0)
+   {
+      std::cout << "[DEBUG] " << rcv;
+      std::optional<WeatherData> weatherData = MessageParse::parseMessage(rcv);
+      if (weatherData)
+      {
+         std::cout << "Parsed weather data: T:" << weatherData->m_temp_c << " H:" << weatherData->m_humid
+                   << " P:" << weatherData->m_pressure_kpa << " R:" << weatherData->m_isRaining
+                   << " L:" << weatherData->m_lightLevel << "\n";
+      }
+   }
 }
 
-Broker::~Broker() {
+Broker::~Broker()
+{
    // Close file
    close(m_fd);
 }
