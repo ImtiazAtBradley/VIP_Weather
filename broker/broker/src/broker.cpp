@@ -3,12 +3,16 @@
 #include "constants.h"
 #include <chrono>
 #include <ratio>
+#include <stdexcept>
 #include <string>
 #include <iostream>
 #include <sys/stat.h>
+#include <termios.h>
+#include <fcntl.h>
+#include <unistd.h>
 
-Broker::Broker(BrokerDatabase &brokerDb, std::chrono::milliseconds schedulerTimeMs)
-    : m_database(brokerDb), m_frequency_ms(schedulerTimeMs)
+Broker::Broker(BrokerDatabase &brokerDb, std::chrono::milliseconds schedulerTimeMs, std::string path)
+    : m_database(brokerDb), m_frequency_ms(schedulerTimeMs), m_filePath(path)
 {
 }
 
@@ -17,40 +21,18 @@ Broker::Broker(BrokerDatabase &&brokerDb) : m_database(brokerDb) {}
 void
 Broker::help()
 {
-   std::cout << "Bradley Cast Broker - Access point of weather stations to "
-                "server database\n"
-             << "usage: bradley-cast-broker [serial dev file]\n"
+   std::cout << "BRADLEY CAST BROKER - ACCESS POINT OF WEATHER STATIONS TO "
+                "SERVER DATABASE\n\n"
+             << "AUTHORS:\n\t BRADLEY UNIVERSITY ECE398 WEATHER STATION PROJECT GROUP 2024\n"
+             << "USAGE: \n\tbradley-cast-broker [serial dev file]\n\n"
              << "serial dev file: A device file representing a serial adapter, "
                 "like '/dev/ttyx'\n";
-}
-
-bool
-Broker::validateUserInput(int argc, char *argv[])
-{
-   if (argc != 2)
-   {
-      return false;
-   }
-
-   /**
-   * CHECK IF FILENAME EXISTS
-   *
-   * Note that this function (access) is NOT safe to use typically, because in
-   * the time that the file is momentarily open, a user can execute an attack in
-   * that short time to manipulate it. For our purposes, we really don't care.
-   */
-   if (!fileExists(argv[1]))
-   {
-      return false;
-   }
-
-   return true;
 }
 
 void
 Broker::printProgramHeader()
 {
-   std::cout << "Bradley Cast Broker V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
+   std::cout << "BRADLEY CAST BROKER V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
              << bc_broker::version::patch << "\n";
 }
 
@@ -58,6 +40,10 @@ bool
 Broker::dbGood()
 {
    return m_database.good();
+}
+
+bool Broker::serialFileGood(){
+   return fileExists();
 }
 
 std::string
@@ -83,6 +69,56 @@ Broker::runScheduler()
    return false;
 }
 
+bool Broker::setupSerialPort(){
+   int file, rc;
+   struct termios options;
+
+   file = open(m_filePath.c_str(), O_RDWR);
+   if (file < 0){
+      return false;
+   }
+   m_fd = file;
+
+   // Set baud rate to 115200
+   cfsetispeed(&options, B115200);
+   cfsetospeed(&options, B115200);
+
+   // Input settings
+   options.c_iflag &= ~(IGNPAR | IGNBRK | BRKINT | ISTRIP | INLCR | IXON | INPCK);
+   options.c_iflag |= (IGNCR);
+   options.c_oflag &= ~(OPOST | ONLCR | OCRNL | ONLRET);
+   options.c_oflag |= (ONOCR);
+   options.c_cflag &= (CSIZE | CSTOPB | PARENB);
+   options.c_cflag |= (CS8);
+   options.c_lflag &= ~(ISIG | ECHO | ECHOE | ECHOK | ECHONL | IEXTEN);
+   options.c_lflag |= (ICANON);
+
+   rc = tcsetattr(file, TCSANOW, &options);
+
+   if (rc == 0){
+      m_serialUp = true;
+      return true;
+   } else {
+      return false;
+   }
+}
+
+bool Broker::writeToPort(const std::string& val){
+   if (!m_serialUp){
+      if(!setupSerialPort()){
+         return false;
+      }
+   }
+
+   if (val.size() <= 0){
+      return false;
+   }
+
+   size_t txNum = write(m_fd, val.c_str(), val.size());
+
+   return txNum == val.size();
+}
+
 // ============================== PRIVATE FUNCTIONS ==============================
 
 /*
@@ -90,15 +126,17 @@ Broker::runScheduler()
  * https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exists-using-standard-c-c11-14-17-c
  */
 bool
-Broker::fileExists(const std::string &name)
+Broker::fileExists()
 {
    struct stat buffer;
-   // NOTE: This *does* check for existence, but has quite a few other
-   //   failure modes. For now, we'll just check for existence with this
-   return (stat(name.c_str(), &buffer) == 0);
+   return (stat(m_filePath.c_str(), &buffer) == 0);
 }
 
-void
-Broker::runTasks()
-{
+void Broker::runTasks() {
+   // Do nothing for now
+}
+
+Broker::~Broker() {
+   // Close file
+   close(m_fd);
 }

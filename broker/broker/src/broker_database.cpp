@@ -11,8 +11,11 @@ BrokerDatabase::BrokerDatabase(const std::string &redisIp, const int redisPort, 
 
    struct timeval timeout = {};
    timeout.tv_sec = timeout_s;
+   redisContext* redisp = redisConnectWithTimeout(redisIp.c_str(), redisPort, timeout);
 
-   p_dbContext.reset(redisConnectWithTimeout(redisIp.c_str(), redisPort, timeout));
+   if (redisp != nullptr){
+      p_dbContext.reset(redisp);
+   }
 }
 
 BrokerDatabase::BrokerDatabase(BrokerDatabase &other)
