@@ -24,12 +24,13 @@ bool isRaining = false, isSunny = false;
 static weather_data_t wd = {0};
 
 static long lastRead = 0;
+static long lastTransmit = 0;
 
 void
 setup() {
     Serial.begin(115200);
-    ws_start_soft_ap();
-    ws_start_http_server();
+
+    Serial.println("BOOTING...");
 
     if (!ws_init_sensors()) {
         Serial.println("Failed to initialize sensors");
@@ -39,13 +40,11 @@ setup() {
         Serial.println("Successfully Initialized Sensors");
     }
 
-    Serial.println("Server ready");
+    Serial.println("BOOT OK");
 }
 
 void
 loop() {
-    ws_server_task();
-
     temp_c = ws_get_temperature();
     isRaining = ws_is_raining();
     humidity = ws_get_humidity();
@@ -58,25 +57,35 @@ loop() {
     wd.pres_kpa = pres_kpa;
     wd.isSunny = isSunny;
 
-    ws_website_set_data(&wd);
+    if (millis() - lastTransmit > 10000) {
 
-    if (millis() - lastRead > 500) {
-        Serial.print("Temperature....");
-        Serial.println(temp_c);
+        // CODE HERE
+        String temp_c, humid, press_kpa, isRaining, lightLevel;
+        temp_c = String(wd.temp_c);
+        humid = String(wd.humid);
+        press_kpa = String(wd.pres_kpa);
+        isRaining = String(wd.isRaining);
+        lightLevel = String(wd.isSunny);
+        String d = "T" + temp_c + "|H" + humid + "|P" + press_kpa + "|R" + isRaining + "|L" + lightLevel;
 
-        Serial.print("Pressure.......");
-        Serial.println(pres_kpa);
+        ws_tx_data(1, d);
 
-        Serial.print("Humidity.......");
-        Serial.println(humidity);
+        lastTransmit = millis();
+    }
 
-        Serial.print("Water Level....");
-        Serial.println(analogRead(33));
+    if(millis() - lastTransmit > 10000) {
 
-        Serial.print("Light Level....");
-        Serial.println(analogRead(32));
+        String temp_c, humid, pres_kpa, isRaining, lightLevel;
+        temp_c = String(wd.temp_c);
+        humid = String(wd.humid);
+        pres_kpa = String(wd.pres_kpa);
+        isRaining = String(wd.isRaining);
+        lightLevel = String(wd.isSunny);
+        String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|R" + isRaining + "|L" + lightLevel;
 
-        lastRead = millis();
+        ws_tx_data(1, d);
+
+        lastTransmit = millis();
     }
 
     delay(15);
