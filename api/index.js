@@ -14,6 +14,7 @@ async function getWeatherData(){
 
 	for (var i = 0; i < items.length; i++){
 		obj.weatherData[i] = {
+			timestamp: items[i][0],
 			temp_c: items[i][1][1],
 			humid_prcnt: items[i][1][3],
 			pressure_kpa: items[i][1][5],
