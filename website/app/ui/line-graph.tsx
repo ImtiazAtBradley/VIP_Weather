@@ -23,14 +23,14 @@ ChartJS.register(
     Legend
 );
 
-export default function EnvironmentLineGraph({ label, title, color, backgroundColor, d }: { label: string, title: string, color: string, backgroundColor: string, d: { time: string, val: number }[] }) {
+export default function EnvironmentLineGraph({ xlabels, label, title, color, backgroundColor, d }: { xlabels: string[], label: string, title: string, color: string, backgroundColor: string, d: { time: string, val: number }[] }) {
 
     let data = {
-        labels: d.map(x => x.time),
+        labels: xlabels,
         datasets: [
             {
                 label: label,
-                data: d.map(x => x.val),
+                data: d,
                 borderColor: color,
                 backgroundColor: backgroundColor,
             }
