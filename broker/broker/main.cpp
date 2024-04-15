@@ -1,4 +1,8 @@
+#include <cerrno>
+#include <chrono>
+#include <cstring>
 #include <iostream>
+#include <ratio>
 #include <sys/stat.h>
 #include <hiredis/hiredis.h>
 #include <cstdlib>
@@ -11,37 +15,41 @@
 int
 main(int argc, char *argv[])
 {
-   std::cout << "HELLO, WORLD!\n" << std::endl;
-
-   BrokerDatabase brokerDb(bc_broker::redis::ip, bc_broker::redis::port);
-   Broker broker = Broker(brokerDb);
-
-   // Print program header
-   broker.programHeader();
-
-   // GET SERIAL PORT FROM USER, IF PRESENT
-   // TODO: Make sure to remove the "or true" which is for debugging
-   if (!broker.validateUserInput(argc, argv) || true)
-   {
-      std::cout << "INVALID INPUT. SEE USAGE:\n" << std::endl;
-      broker.help();
+   if (argv[1] == nullptr || argc != 2){
+      std::cout << "INVALID INPUT. SEE USAGE:\n\n";
+      Broker::help();
       exit(EXIT_FAILURE);
    }
 
-   std::cout << "Fake connecting to serial file... " << argv[1] << "\n";
+   BrokerDatabase brokerDb(bc_broker::redis::ip, bc_broker::redis::port, 3);
+   // Run broker scheduler every 20ms
+   Broker broker = Broker(brokerDb, std::chrono::duration<int, std::milli>(100), argv[1]);
+
+   // Print program header
+   Broker::printProgramHeader();
+
+   // SETUP SERIAL FILE
+   
+   if (!broker.serialFileGood() || !broker.setupSerialPort()){
+      std::cerr << "INVALID FILE INPUT. SEE USAGE:\n\n";
+      Broker::help();
+      exit(EXIT_FAILURE);
+   }
+   
+   std::cout << "[INFO] Initialized serial port\n";
 
    // TRY TO CONNECT TO REDIS SERVER
 
-   if (broker.dbGood())
+   if (!broker.dbGood())
    {
       std::cerr << "Connection to redis DB failed\n";
-      std::cerr << "hiredis Error: " << broker.getDbError();
+      std::cerr << "hiredis Error: " << broker.getDbError() << "\n";
       exit(EXIT_FAILURE);
    }
+   std::cout << "[INFO] Successfully connected to database\n";
 
-   std::cout << "Successfully connected to database\n";
-
-   // WHILE LOOP THAT PERFORMS RX + PUBLISH TASK
-
-   // Clean up and disconnect from database
+   while(1) {
+      broker.runScheduler();
+   }
 }
+

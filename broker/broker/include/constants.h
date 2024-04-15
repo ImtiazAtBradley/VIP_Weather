@@ -4,7 +4,7 @@ namespace bc_broker
 {
    namespace redis
    {
-      constexpr static char ip[] = "172.20.142.43";
+      constexpr static char ip[] = "127.0.0.1";
       constexpr static int port = 6379;
    } // namespace redis
 

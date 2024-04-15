@@ -6,6 +6,8 @@
  *
  */
 
+#include <cstdio>
+#include <secrets.h>
 #include <weather_station.h>
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>

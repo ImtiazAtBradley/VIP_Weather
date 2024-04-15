@@ -8,6 +8,7 @@ set (SRCS
 	"./main.cpp"
 	"./src/broker.cpp"
 	"./src/broker_database.cpp"
+	"./src/MessageParse.cpp"
 )
 
 set (INCLUDE_DIRS 
