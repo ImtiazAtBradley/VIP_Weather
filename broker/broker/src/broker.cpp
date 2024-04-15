@@ -1,5 +1,6 @@
 #include "broker.h"
 #include "MessageParse.h"
+#include "MessageResponse.h"
 #include "WeatherData.h"
 #include "broker_database.h"
 #include "constants.h"
@@ -168,6 +169,11 @@ Broker::fileExists()
    return (stat(m_filePath.c_str(), &buffer) == 0);
 }
 
+bool Broker::writeToDb(const MessageResponse& response) {
+
+   return m_database.postStreamData(response.m_id, response.m_data);
+}
+
 void
 Broker::runTasks()
 {
@@ -178,12 +184,18 @@ Broker::runTasks()
    if (rcv.size() > 0)
    {
       std::cout << "[DEBUG] " << rcv;
-      std::optional<WeatherData> weatherData = MessageParse::parseMessage(rcv);
-      if (weatherData)
+      std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
+      if (response)
       {
-         std::cout << "Parsed weather data: T:" << weatherData->m_temp_c << " H:" << weatherData->m_humid
-                   << " P:" << weatherData->m_pressure_kpa << " R:" << weatherData->m_isRaining
-                   << " L:" << weatherData->m_lightLevel << "\n";
+         std::cout << "[DEBUG] Parsed weather data: T:" << response->m_data.m_temp_c
+                   << " H:" << response->m_data.m_humid << " P:" << response->m_data.m_pressure_kpa
+                   << " R:" << response->m_data.m_isRaining << " L:" << response->m_data.m_lightLevel << "\n";
+         std::cout << "[DEBUG] Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
+                   << " SNR:" << response->m_snr << "\n";
+
+         if (!writeToDb(response.value())){
+            std::cerr << "[ERROR] Failed to write to database\n";
+         }
       }
    }
 }

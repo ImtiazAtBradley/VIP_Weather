@@ -1,14 +1,15 @@
 #pragma once
 
-#include "WeatherData.h"
 #include <optional>
 #include <string>
+#include "MessageResponse.h"
 
 class MessageParse
 {
  public:
    MessageParse();
-   static std::optional<WeatherData> parseMessage(const std::string &radioMessage);
+   static std::optional<MessageResponse> parseMessage(const std::string &radioMessage);
 
  private:
 };
+

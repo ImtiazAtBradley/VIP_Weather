@@ -1,5 +1,6 @@
 #pragma once
 
+#include "MessageResponse.h"
 #include "broker_database.h"
 
 #include <chrono>
@@ -25,6 +26,7 @@ class Broker
  private:
    bool fileExists();
    void runTasks();
+   bool writeToDb(const MessageResponse& data);
 
    int m_fd = -1;
    bool m_serialUp = false;

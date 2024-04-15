@@ -3,9 +3,10 @@
 #include <string>
 #include <hiredis/hiredis.h>
 #include <memory>
+#include "WeatherData.h"
 
 // "functor"
- // This makes a structure which is default constructuble. A type that acts like a function
+// This makes a structure which is default constructuble. A type that acts like a function
 struct RedisDbDeleter
 {
    void
@@ -24,6 +25,7 @@ class BrokerDatabase
    bool good() const;
    std::string getErr() const;
    int getErrNum() const;
+   bool postStreamData(const int id, const WeatherData &data);
 
  private:
    static void freeRedis(redisContext *ptr);

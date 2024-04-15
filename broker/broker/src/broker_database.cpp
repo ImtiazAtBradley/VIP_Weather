@@ -11,9 +11,10 @@ BrokerDatabase::BrokerDatabase(const std::string &redisIp, const int redisPort, 
 
    struct timeval timeout = {};
    timeout.tv_sec = timeout_s;
-   redisContext* redisp = redisConnectWithTimeout(redisIp.c_str(), redisPort, timeout);
+   redisContext *redisp = redisConnectWithTimeout(redisIp.c_str(), redisPort, timeout);
 
-   if (redisp != nullptr){
+   if (redisp != nullptr)
+   {
       p_dbContext.reset(redisp);
    }
 }
@@ -65,4 +66,43 @@ BrokerDatabase::freeRedis(redisContext *ptr)
 {
    std::cout << "[DEBUG] Called redis deleter\n";
    redisFree(ptr);
+}
+
+bool
+BrokerDatabase::postStreamData(const int id, const WeatherData &data)
+{
+   void *pReply;
+
+   std::string lightLevel = [data]()
+   {
+      switch (data.m_lightLevel)
+      {
+         case SUNNY:
+            return "SUNNY";
+            break;
+         case DARK:
+            return "DARK";
+            break;
+      }
+
+      return "SUNNY";
+   }();
+
+   pReply = redisCommand(
+       p_dbContext.get(),
+       // This will save 15 days of data
+       "XADD weather-station:%d MAXLEN ~ 720 * temp_c %.02f humid_prcnt %.02f pressure_kpa %.02f is_raining %d light_level %s",
+       id,
+       data.m_temp_c,
+       data.m_humid,
+       data.m_pressure_kpa,
+       data.m_isRaining,
+       lightLevel.c_str());
+
+   if (pReply == NULL){
+      return false;
+   }
+
+   freeReplyObject(pReply);
+   return true;
 }
