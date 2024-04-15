@@ -1,9 +1,20 @@
 const Redis = require("ioredis")
 const express = require("express")
 
-const redis = new Redis()
+const redis = new Redis({
+	port: 6379,
+	host: "localhost",
+	retryStrategy(times){
+		const delay = Math.min(times * 50, 2000)
+		return delay
+	},
+})
 const app = express()
 const port = 3000
+
+redis.on('error', function (e) {
+	console.log(`REDIS CLIENT ERROR: ${e}`)
+})
 
 async function getWeatherData(){
 	const items = await redis.xrange("weather-station:1", "-", "+")
