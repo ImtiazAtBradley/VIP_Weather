@@ -108,6 +108,10 @@ Broker::setupSerialPort()
 
    if (rc == 0)
    {
+      // Flush the current buffer of data
+      // See: https://stackoverflow.com/questions/13013387/clearing-the-serial-ports-buffer
+      sleep(2);
+      tcflush(m_fd, TCIOFLUSH);
       m_serialUp = true;
       return true;
    }
@@ -169,7 +173,9 @@ Broker::fileExists()
    return (stat(m_filePath.c_str(), &buffer) == 0);
 }
 
-bool Broker::writeToDb(const MessageResponse& response) {
+bool
+Broker::writeToDb(const MessageResponse &response)
+{
 
    return m_database.postStreamData(response.m_id, response.m_data);
 }
@@ -193,7 +199,8 @@ Broker::runTasks()
          std::cout << "[DEBUG] Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
                    << " SNR:" << response->m_snr << "\n";
 
-         if (!writeToDb(response.value())){
+         if (!writeToDb(response.value()))
+         {
             std::cerr << "[ERROR] Failed to write to database\n";
          }
       }

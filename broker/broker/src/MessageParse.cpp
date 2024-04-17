@@ -43,45 +43,54 @@ MessageParse::parseMessage(const std::string &radioMessage)
    }
    weatherTokens.push_back(data);
 
-   // Parse out ID
-
-   id = std::stoi(tokens[0].substr(tokens[0].find("=") + 1, std::string::npos));
-
-   // Parse out RSSI
-
-   rssi = std::stoi(tokens[3]);
-
-   // Parse out SNR
-
-   snr = std::stoi(tokens[4]);
-
-   // Parse out weather data
-
-   for (std::string s : weatherTokens)
+   try
    {
-      std::string key = s.substr(0, 1);
-      std::string value = s.erase(0, 1);
 
-      if (key == "T")
+      // Parse out ID
+
+      id = std::stoi(tokens[0].substr(tokens[0].find("=") + 1, std::string::npos));
+
+      // Parse out RSSI
+
+      rssi = std::stoi(tokens[3]);
+
+      // Parse out SNR
+
+      snr = std::stoi(tokens[4]);
+
+      // Parse out weather data
+
+      for (std::string s : weatherTokens)
       {
-         d.m_temp_c = std::stof(value);
+         std::string key = s.substr(0, 1);
+         std::string value = s.erase(0, 1);
+
+         if (key == "T")
+         {
+            d.m_temp_c = std::stof(value);
+         }
+         else if (key == "H")
+         {
+            d.m_humid = std::stof(value);
+         }
+         else if (key == "P")
+         {
+            d.m_pressure_kpa = std::stof(value);
+         }
+         else if (key == "R")
+         {
+            d.m_isRaining = s != "0";
+         }
+         else if (key == "L")
+         {
+            d.m_lightLevel = LightLevel(std::stoi(value));
+         }
       }
-      else if (key == "H")
-      {
-         d.m_humid = std::stof(value);
-      }
-      else if (key == "P")
-      {
-         d.m_pressure_kpa = std::stof(value);
-      }
-      else if (key == "R")
-      {
-         d.m_isRaining = s != "0";
-      }
-      else if (key == "L")
-      {
-         d.m_lightLevel = LightLevel(std::stoi(value));
-      }
+   }
+   catch (std::invalid_argument &e)
+   {
+      std::cerr << "[ERROR] Failed to parse packet\n";
+      return {};
    }
 
    return MessageResponse(id, rssi, snr, d);
