@@ -38,6 +38,9 @@ main(int argc, char *argv[])
    
    std::cout << "[INFO] Initialized serial port\n";
 
+   // HACK: Write to radio to set it up
+   broker.writeToPort("AT+ADDRESS=1\r\n");
+
    // TRY TO CONNECT TO REDIS SERVER
 
    if (!broker.dbGood())

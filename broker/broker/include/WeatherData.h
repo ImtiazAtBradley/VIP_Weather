@@ -2,8 +2,8 @@
 
 enum LightLevel
 {
-   SUNNY = 0,
-   DARK = 1,
+   DARK = 0,
+   SUNNY = 1,
 };
 
 class WeatherData
