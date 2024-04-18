@@ -6,6 +6,9 @@
 #include <Arduino.h>
 #include <weather_station.h>
 
+#define TX_INTERVAL_MS (1800000)
+// #define DEBUG
+
 /* ========================================================================== */
 /*                        PRIVATE FUNCTION DECLARATIONS                       */
 /* ========================================================================== */
@@ -23,8 +26,8 @@ bool isRaining = false, isSunny = false;
 
 static weather_data_t wd = {0};
 
-static long lastRead = 0;
-static long lastTransmit = 0;
+static long lastBlink = LONG_MAX;
+static long lastTransmit = LONG_MAX;
 
 void
 setup() {
@@ -32,12 +35,16 @@ setup() {
 
     Serial.println("BOOTING...");
 
-    if (!ws_init_sensors()) {
-        Serial.println("Failed to initialize sensors");
-        while (1)
-            ;
-    } else {
-        Serial.println("Successfully Initialized Sensors");
+    delay(1000);
+
+    while (!ws_init()) {
+        // Blink a couple times to notify user
+        for (int i = 0; i < 3; ++i) {
+            ws_set_status_led(true);
+            delay(1000);
+            ws_set_status_led(false);
+            delay(1000);
+        }
     }
 
     Serial.println("BOOT OK");
@@ -57,23 +64,38 @@ loop() {
     wd.pres_kpa = pres_kpa;
     wd.isSunny = isSunny;
 
-    if (millis() - lastTransmit > 10000) {
+    if (millis() - lastBlink > 15000) {
+        // Blink to indicate it's not dead
+        ws_set_status_led(true);
+        delay(20);
+        ws_set_status_led(false);
 
-        // CODE HERE
-        String temp_c, humid, press_kpa, isRaining, lightLevel;
-        temp_c = String(wd.temp_c);
-        humid = String(wd.humid);
-        press_kpa = String(wd.pres_kpa);
-        isRaining = String(wd.isRaining);
-        lightLevel = String(wd.isSunny);
-        String d = "T" + temp_c + "|H" + humid + "|P" + press_kpa + "|R" + isRaining + "|L" + lightLevel;
+#ifdef DEBUG
+        // Print out some debug stuff
+        Serial.println("[DEBUG] CURRENT VALUES: ");
+        Serial.print("Water Level..........");
+        Serial.print(ws_raw_raining());
+        Serial.print("\n");
+        Serial.print("Light Level..........");
+        Serial.print(ws_raw_light());
+        Serial.print("\n");
+        Serial.print("Pressure Level.......");
+        Serial.print(ws_get_pressure());
+        Serial.print("\n");
+        Serial.print("Humidity Level.......");
+        Serial.print(ws_get_humidity());
+        Serial.print("\n");
+        Serial.print("Temperature..........");
+        Serial.print(ws_get_temperature());
+        Serial.print("\n");
 
-        ws_tx_data(1, d);
+        Serial.print("........................................\n");
+#endif
 
-        lastTransmit = millis();
+        lastBlink = millis();
     }
 
-    if(millis() - lastTransmit > 10000) {
+    if (millis() - lastTransmit > TX_INTERVAL_MS) {
 
         String temp_c, humid, pres_kpa, isRaining, lightLevel;
         temp_c = String(wd.temp_c);

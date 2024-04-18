@@ -69,6 +69,29 @@ BrokerDatabase::freeRedis(redisContext *ptr)
 }
 
 bool
+BrokerDatabase::resetDbForStation(const int id)
+{
+   void *pReply;
+   bool hasErr = false;
+   if (!p_dbContext)
+   {
+      // Return false if pointer is null
+      return false;
+   }
+
+   pReply = redisCommand(p_dbContext.get(), "DEL weather-station:%d", id);
+
+   if (pReply == NULL || p_dbContext.get()->err != 0)
+   {
+      hasErr = true;
+   }
+
+   freeReplyObject(pReply);
+
+   return true;
+}
+
+bool
 BrokerDatabase::postStreamData(const int id, const WeatherData &data)
 {
    void *pReply;
@@ -88,21 +111,23 @@ BrokerDatabase::postStreamData(const int id, const WeatherData &data)
       return "SUNNY";
    }();
 
-   pReply = redisCommand(
-       p_dbContext.get(),
-       // This will save 15 days of data
-       "XADD weather-station:%d MAXLEN ~ 720 * temp_c %.02f humid_prcnt %.02f pressure_kpa %.02f is_raining %d light_level %s",
-       id,
-       data.m_temp_c,
-       data.m_humid,
-       data.m_pressure_kpa,
-       data.m_isRaining,
-       lightLevel.c_str());
+   // HACK: Ignoring reply
+   pReply = redisCommand(p_dbContext.get(),
+                         // This will save 15 days of data
+                         "XADD weather-station:%d MAXLEN ~ 720 * temp_c %.02f humid_prcnt %.02f pressure_kpa %.02f "
+                         "is_raining %d light_level %s",
+                         id,
+                         data.m_temp_c,
+                         data.m_humid,
+                         data.m_pressure_kpa,
+                         data.m_isRaining,
+                         lightLevel.c_str());
 
-   if (pReply == NULL){
+   if (pReply == NULL || p_dbContext.get()->err != 0)
+   {
+      freeReplyObject(pReply);
       return false;
    }
 
-   freeReplyObject(pReply);
    return true;
 }

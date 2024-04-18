@@ -25,7 +25,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	# C Redis Client
 	target_link_libraries(bradley-cast-broker PRIVATE hiredis)
 else ()
-	message(FATAL_ERROR "Build only supported for linux")
+	target_link_libraries(bradley-cast-broker PRIVATE hiredis)
 endif()
 
 # C math

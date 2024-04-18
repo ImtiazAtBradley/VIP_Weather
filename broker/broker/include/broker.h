@@ -22,11 +22,12 @@ class Broker
    bool setupSerialPort();
    bool writeToPort(const std::string &val);
    std::string readFromPort();
+   bool resetDb(const int id);
 
  private:
    bool fileExists();
    void runTasks();
-   bool writeToDb(const MessageResponse& data);
+   bool writeToDb(const MessageResponse &data);
 
    int m_fd = -1;
    bool m_serialUp = false;

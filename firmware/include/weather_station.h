@@ -26,7 +26,7 @@ typedef struct {
  * @return true -> Successful initialization
  * @return false -> Initialization failed
  */
-bool ws_init_sensors();
+bool ws_init();
 
 /**
  * @brief Read temperature from a sensor
@@ -66,5 +66,11 @@ bool ws_is_raining();
 bool ws_is_sunny();
 
 void ws_tx_data(int address, const String& data);
+
+void ws_set_status_led(bool ledState);
+
+int ws_raw_raining();
+
+int ws_raw_light();
 
 #endif

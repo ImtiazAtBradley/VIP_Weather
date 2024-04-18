@@ -26,6 +26,7 @@ class BrokerDatabase
    std::string getErr() const;
    int getErrNum() const;
    bool postStreamData(const int id, const WeatherData &data);
+   bool resetDbForStation(const int id);
 
  private:
    static void freeRedis(redisContext *ptr);

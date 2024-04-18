@@ -14,6 +14,8 @@
 #include <Adafruit_BME280.h>
 #include <weather_station.h>
 
+#define LED_PIN (19)
+
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
@@ -35,6 +37,11 @@ int
 hal_get_water_level() {
     //waterPin = 33 max: ?,    min: 0
     return analogRead(33);
+}
+
+void
+hal_setup_digital() {
+    pinMode(LED_PIN, OUTPUT);
 }
 
 bool
@@ -97,6 +104,11 @@ send_data(const int address, const String& data) {
     send_cmd(command);
 }
 
+void
+hal_set_led(bool ledState) {
+    digitalWrite(LED_PIN, ledState);
+}
+
 /* ========================================================================== */
 /*                                 PUBLIC API                                 */
 /* ========================================================================== */
@@ -117,7 +129,9 @@ send_data(const int address, const String& data) {
  * @return false -> Initialization failed
  */
 bool
-ws_init_sensors() {
+ws_init() {
+
+    hal_setup_digital();
 
     Wire.begin(21, 22, 5000);
 
@@ -175,7 +189,22 @@ ws_is_sunny() {
     return hal_get_light_level() > 850;
 }
 
+int
+ws_raw_raining() {
+    return hal_get_water_level();
+}
+
+int
+ws_raw_light() {
+    return hal_get_light_level();
+}
+
 void
 ws_tx_data(int address, const String& data) {
     send_data(address, data);
+}
+
+void
+ws_set_status_led(bool ledState) {
+    hal_set_led(ledState);
 }

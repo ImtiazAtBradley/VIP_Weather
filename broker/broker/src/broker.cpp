@@ -28,12 +28,14 @@ Broker::Broker(BrokerDatabase &&brokerDb) : m_database(brokerDb) {}
 void
 Broker::help()
 {
-   std::cout << "BRADLEY CAST BROKER - ACCESS POINT OF WEATHER STATIONS TO "
+   std::cout << "\nBRADLEY CAST BROKER - ACCESS POINT OF WEATHER STATIONS TO "
                 "SERVER DATABASE\n\n"
-             << "AUTHORS:\n\t BRADLEY UNIVERSITY ECE398 WEATHER STATION PROJECT GROUP 2024\n"
-             << "USAGE: \n\tbradley-cast-broker [serial dev file]\n\n"
-             << "serial dev file: A device file representing a serial adapter, "
-                "like '/dev/ttyx'\n";
+             << "AUTHORS:\n  BRADLEY UNIVERSITY ECE398 WEATHER STATION PROJECT GROUP 2024\n"
+             << "USAGE: \n  bradley-cast-broker [serial dev file]\n"
+             << "OR\n"
+             << "bradley-cast-broker reset-ws [ID]\n"
+             << "  serial dev file: A device file representing a serial adapter like '/dev/ttyx'\n"
+             << "  ID: The id of the weather station\n";
 }
 
 void
@@ -158,6 +160,12 @@ Broker::readFromPort()
    ssize_t rxNum = read(m_fd, buf, sizeof(buf));
 
    return std::string(buf, strlen(buf));
+}
+
+bool
+Broker::resetDb(const int id)
+{
+   return m_database.resetDbForStation(id);
 }
 
 // ============================== PRIVATE FUNCTIONS ==============================
