@@ -80,7 +80,7 @@ export default async function Page() {
         <WeatherStationLogo />
       </div>
       <div className="flex justify-center">
-        <WeatherCard temp_c={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} />
+        <WeatherCard temp_c={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} light_level="SUNNY" />
       </div>
       <div className={`${RedHatDisplay.className} flex mt-5 justify-center md:text-5xl text-3xl`}>
         <h1 className="text-center">Historical Environment Data</h1>
