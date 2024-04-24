@@ -1,0 +1,15 @@
+# Typically in /etc/nginx/sites-enabled/ directory
+# Weather station server configuration
+server {
+  listen 80;
+  listen [::]:80;
+
+  location / {
+    proxy_pass http://localhost:27500;
+  }
+  
+  location /api/envdata {
+    # NOTE: This IP could change depending on your implementation
+    proxy_pass http://192.168.16.101:27500/api/envdata;
+  }
+}

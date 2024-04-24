@@ -10,7 +10,7 @@ const redis = new Redis({
 	},
 })
 const app = express()
-const port = 5000
+const port = 27500
 
 redis.on('error', function (e) {
 	console.log(`REDIS CLIENT ERROR: ${e}`)
@@ -45,5 +45,5 @@ app.get('/api/envdata', async (req, res) => {
 })
 
 app.listen(port, () => {
-	console.log(`Example app is listening on port ${port}`)
+	console.log(`Bradley Weather Station API listening on port ${port}`)
 })
