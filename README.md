@@ -85,8 +85,9 @@ cd broker/broker/
 
 mkdir build
 
-# Build script
-. build.sh
+cmake -B ./build/
+
+cmake --build ./build/
 ```
 
 Running the broker:
@@ -113,7 +114,7 @@ NOTE: The redis server must be running before this
 ```bash
 npm install
 
-npm start
+node index.js
 ```
 
 ## Software - Website
