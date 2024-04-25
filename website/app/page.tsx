@@ -9,7 +9,7 @@ async function getEnvironmentData() {
   let res = null;
 
   try {
-    res = await fetch("http://localhost:5000/api/envdata", { cache: "no-store" })
+    res = await fetch("http://192.168.16.101:5000/api/envdata", { cache: "no-store" })
   } catch (error) {
     return null
   }

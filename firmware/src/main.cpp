@@ -8,7 +8,7 @@
 
 // #define TX_INTERVAL_MS (1800000)
 // FOR DEMO ONLY
-#define TX_INTERVAL_MS (30000)
+#define TX_INTERVAL_MS (5000)
 // #define DEBUG
 
 /* ========================================================================== */

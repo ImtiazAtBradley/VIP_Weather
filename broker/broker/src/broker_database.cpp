@@ -129,5 +129,7 @@ BrokerDatabase::postStreamData(const int id, const WeatherData &data)
       return false;
    }
 
+   freeReplyObject(pReply);
+
    return true;
 }
