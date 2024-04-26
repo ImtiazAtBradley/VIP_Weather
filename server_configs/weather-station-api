@@ -4,6 +4,10 @@ server {
         listen 80;
         listen [::]:80;
 
+        location / {
+                return 404;
+        }
+
         location /api/envdata {
                 proxy_pass http://localhost:27500/api/envdata;
         }

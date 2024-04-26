@@ -18,7 +18,7 @@ redis.on('error', function (e) {
 
 async function getWeatherData(){
 	// TODO: Eventually, we may want to get data from stations with different IDs
-	const items = await redis.xrevrange("weather-station:0", "+", "-", "COUNT", 50)
+	const items = await redis.xrevrange("weather-station:0", "+", "-", "COUNT", 250)
 
 	let obj = {
 		weatherData: []
