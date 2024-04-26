@@ -6,9 +6,7 @@
 #include <Arduino.h>
 #include <weather_station.h>
 
-// #define TX_INTERVAL_MS (1800000)
-// FOR DEMO ONLY
-#define TX_INTERVAL_MS (5000)
+#define TX_INTERVAL_MS (1800000)
 // #define DEBUG
 
 /* ========================================================================== */
@@ -66,8 +64,7 @@ loop() {
     wd.pres_kpa = pres_kpa;
     wd.isSunny = isSunny;
 
-    // TODO: UNCOMMENT AFTER DEMO
-    if (millis() - lastBlink > 15000 && false) {
+    if (millis() - lastBlink > 15000) {
         // Blink to indicate it's not dead
         ws_set_status_led(true);
         delay(20);
@@ -111,7 +108,7 @@ loop() {
         ws_tx_data(1, d);
 
         ws_set_status_led(true);
-        delay(500);
+        delay(15);
         ws_set_status_led(false);
 
         lastTransmit = millis();
