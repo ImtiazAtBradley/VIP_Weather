@@ -10,7 +10,7 @@ const redis = new Redis({
 	},
 })
 const app = express()
-const port = 5000
+const port = 27500
 
 redis.on('error', function (e) {
 	console.log(`REDIS CLIENT ERROR: ${e}`)
@@ -18,7 +18,7 @@ redis.on('error', function (e) {
 
 async function getWeatherData(){
 	// TODO: Eventually, we may want to get data from stations with different IDs
-	const items = await redis.xrevrange("weather-station:0", "+", "-", "COUNT", 50)
+	const items = await redis.xrevrange("weather-station:0", "+", "-", "COUNT", 100)
 
 	let obj = {
 		weatherData: []
@@ -45,5 +45,5 @@ app.get('/api/envdata', async (req, res) => {
 })
 
 app.listen(port, () => {
-	console.log(`Example app is listening on port ${port}`)
+	console.log(`Bradley Weather Station API listening on port ${port}`)
 })

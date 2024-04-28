@@ -165,7 +165,13 @@ Broker::readFromPort()
 bool
 Broker::resetDb(const int id)
 {
-   return m_database.resetDbForStation(id);
+   bool rc = m_database.resetDbForStation(id);
+   if (rc){
+      std::cout << "[DEBUG] " << "Successfully reset weather station with ID: " << id << "\n";
+   } else {
+      std::cerr << "[ERROR] " << "ERROR reseting weather station with ID: " << id << "\n";
+   }
+   return rc;
 }
 
 // ============================== PRIVATE FUNCTIONS ==============================

@@ -107,6 +107,10 @@ loop() {
 
         ws_tx_data(1, d);
 
+        ws_set_status_led(true);
+        delay(15);
+        ws_set_status_led(false);
+
         lastTransmit = millis();
     }
 
