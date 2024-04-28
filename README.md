@@ -1,6 +1,6 @@
 # Bradley Weather Station - Overview
 
-The Bradley Weather Station was designed and realized by students enrolled in Vertically Integrated Projects in the Electrical Engineering department. This project aims to provide students a way to monitor and log weather data on campus.
+The Bradley Weather Station was designed and realized by students enrolled in Vertically Integrated Projects in the Electrical Engineering department. This project aims to provide students on Bradley's campus a way to monitor and log weather data. In the future, the weather station system will become a distributed network of different stations, indoors and out that will report their data to a central data broker. 
 
 # Getting Started
 
@@ -41,20 +41,20 @@ It's optional, but in the first prototype, we also broke out the TX and RX pins 
 
 **Broker Device**
 
-The broker device needs to have one of the RYLR896 devices connected to it, and the device file accessible to the device running hte broker program. 
+The computer running the broker needs to have one of the RYLR896 devices connected to it, and the device file accessible to the host running the broker program. 
 
 ## Software - Broker
 
-The broker software is responsible for processing the serial data received from the attached radio. The broker program then writes that data to a redis database running locally on the machine. 
+The broker software is responsible for processing the serial data received from the attached radio. The broker program then writes that data to a redis database running locally on the the same machine.
 
 **Requirements:** 
 
 | Requirement | Value | Notes |
 | --- | --- | --- |
-| Operating System | Ubuntu officially supported | Other OSs using the Linux kernel could work, but some finagling would be needed |
+| Operating System | Ubuntu officially supported | Other POSIX compliant OSs using the Linux kernel could work, but some finagling would be needed |
 | Serial Ports | 1 | Need one serial port for communicating with the radio
-| Database | System must be running an unsecured, local, redis database which can e accessed at port 6379 |
-| HIRedis Library | The system must have the HIRedis library installed
+| Database | System must be running an unsecured, local, redis database which can be accessed at port 6379 |
+| HIRedis Library | The system must have the HIRedis library installed and available to running applications
 
 **Running the Broker**
 
@@ -137,6 +137,19 @@ npm install
 npm run dev 
 ```
 
+**Building the webpage**
+
+Another option is to build the website and run it as recommended in production environments:
+
+```bash
+npm install
+
+# Builds the webpage
+npm run build
+
+npm run start
+``` 
+
 # Protocol
 
 Note that the protocol used to communicate over the radio is NOT the binary protocol described in the wiki, but is a simple ASCII string. 
@@ -144,6 +157,80 @@ Note that the protocol used to communicate over the radio is NOT the binary prot
 String: `T00.00|H00.00|P00.00|R<0 or 1>|L<0,1,2>`
 
 There is more data transmitted, but this is what the payload looks like.
+
+> Next semester, we'll use the binary protocol that we developed and described in the GitHub repository.
+
+# Using the Broker
+
+Reference the help of the broker program in order to see usage, but here's a quick overview:
+
+**To start the broker:**
+
+```bash
+bradley-cast-broker /dev/ttyS0 # Where ttyS0 is the serial port you're using
+```
+
+**To reset data collected by weather station:**
+
+```bash
+bradley-cast-broker reset-ws 0 # Where 0 is the ID of the weather station, which it will be for now
+```
+
+# Bradley-Cast Protocol
+
+As a group, we developed this binary protocol to encode and parse messages to go to and from weather stations. The radios we are currently using only support transmitting ASCII data. In order to encode our binary protocol, we would have had to add extra code to encode to Base64. Next semester, we'll be switching to our binary protocol for communication. 
+
+For now, the protocol used is a very simple ascii text string in the following format:
+
+`T00.00|H00.00|P00.00|R<0 or 1>|L<0,1,2>`
+
+**Where (Replace '00.00' with values and assume '|' is the delimeter):**
+
+- `T` is temperature in celsius
+- `H` is the humidity, in percent
+- `P` is pressure, in kPa
+- `R` is If it's raining or not
+- `L` is light level: 
+
+# Nginx Concigurations
+
+Nginx is expected to be ran in front of any of the servers which could be accessed publicly the following are some configuration files that should be placed in `/etc/nginx/sites-enabled` (or your directory for configurations)
+
+**For the front-end webserver:**
+```
+# Typically in /etc/nginx/sites-enabled/ directory
+# Bradley weather station webserver configuration
+# Repo: https://github.com/ImtiazAtBradley/VIP_Weather
+server {
+  listen 80;
+  listen [::]:80;
+
+  location / {
+    proxy_pass http://localhost:27500;
+  }
+  
+  location /api/envdata {
+    # NOTE: This IP and port could change depending on your implementation. 
+    # Point this URL to wherever the api is accessible
+    proxy_pass http://192.168.16.101:27500/api/envdata;
+  }
+}
+```
+
+**For the api:**
+```
+# Typically in /etc/nginx/sites-enabled/ directory
+# Bradley weather station api configuration
+# Repo: https://github.com/ImtiazAtBradley/VIP_Weather
+server {
+  listen 80;
+  listen [::]:80;
+
+  location /api/envdata {
+    proxy_pass http://localhost:27500/api/envdata;
+  }
+}
+```
 
 # Contributors
 
