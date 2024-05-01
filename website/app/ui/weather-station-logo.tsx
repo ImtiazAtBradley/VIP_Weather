@@ -1,11 +1,14 @@
 import { TiWeatherWindyCloudy } from "react-icons/ti";
-import { RedHatDisplay } from '@/app/ui/fonts';
 
 export default function WeatherStationLogo() {
     return (
-        <div className={`${RedHatDisplay.className} flex flex-row items-center text-white`}>
-            <WeatherStationIcon />
-            <p className="md:text-4xl text-xl m-3">BECC Weather Station</p>
+        <div className="flex w-full px-4 items-center justify-between text-white">
+            <a href="/">
+                <div className="flex">
+                    <WeatherStationIcon />
+                    <p className="md:text-4xl text-xl m-3">BECC Weather Station</p>
+                </div>
+            </a>
         </div>
     );
 }
