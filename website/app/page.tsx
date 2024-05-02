@@ -78,14 +78,6 @@ export default async function Page() {
           <p>Weather Station is currently indoors, and is reading indoor data. Values updates happen every 5 seconds. Refresh page in order to see new data.</p>
         </div>
       </div>
-      <div className="mt-5" role="alert">
-	  <div className="bg-orange-500 text-white font-bold rounded-t px-4 py-2">
-	    Info!
-	  </div>
-	  <div className="border border-t-0 border-orange-400 rounded-b bg-orange-100 px-4 py-3 text-orange-700">
-	    <p>Weather Station is currently indoors, and is reading indoor data. Values updates happen every 5 seconds. Refresh page in order to see new data.</p>
-	  </div>
-	</div>
       <div className="flex justify-center">
         <WeatherCard temp_f={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} light_level="SUNNY" />
       </div>

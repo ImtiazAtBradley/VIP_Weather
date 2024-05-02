@@ -1,7 +1,7 @@
 export default function Page() {
     return (
         <>
-            <div className="flex flex-col p-10 justify-center mt-12">
+            <div className="flex flex-col h-screen mt-12">
                 <p className="text-2xl font-bold text-center">Contact administrators with any questions, comments, or concearns regarding the weather station, or ECE 398:</p>
                 <div className="flex py-10 flex-row justify-center">
                     <div className="flex flex-col p-10 mx-12 border shadow-lg rounded">
