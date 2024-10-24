@@ -1,5 +1,8 @@
 import Redis from "ioredis";
 import express from "express";
+import bodyParser from "body-parser";
+import fs from "fs";
+import crypto from "crypto";
 
 // DEFINITIONS =================================================================
 
@@ -44,7 +47,7 @@ async function postWeatherData(weatherRecord: WeatherData): Promise<boolean> {
     try {
         // Try to add stuff to redis database
         redis.xadd(
-            "weather-station:0", "MAXLEN", "~", "720",
+            "weather-station:0", "MAXLEN", "~", "720", "*",
             "temp_c", `${weatherRecord.temp_c}`,
             "humid_prcnt", `${weatherRecord.humid_prcnt}`,
             "pressure_kpa", `${weatherRecord.pressure_kpa}`,
@@ -58,6 +61,38 @@ async function postWeatherData(weatherRecord: WeatherData): Promise<boolean> {
     return true;
 }
 
+function isJsonWeatherRecord(json : object) : boolean
+{
+    return json.hasOwnProperty('timestamp') 
+        && json.hasOwnProperty('temp_c') 
+        && json.hasOwnProperty('humid_prcnt') 
+        && json.hasOwnProperty('pressure_kpa') 
+        && json.hasOwnProperty('is_raining') 
+        && json.hasOwnProperty('light_level')
+}
+
+function loadKeys(path : string) : string[] | null
+{
+    try {
+        let fileData = fs.readFileSync(path)
+        let keys = fileData.toString().split("\n")
+        if (keys.length == 0)
+        {
+            return null
+        }
+        return keys
+    } catch (err) {
+        console.log(err)
+        return null
+    }
+}
+
+// GLOBALS =====================================================================
+
+const app = express()
+const port = 27500
+const keysPath : string = "./api.keys"
+
 // API APP =====================================================================
 
 const redis = new Redis({
@@ -68,8 +103,8 @@ const redis = new Redis({
         return delay
     },
 })
-const app = express()
-const port = 27500
+
+app.use(bodyParser.json())
 
 redis.on('error', function (e) {
     console.log(`REDIS CLIENT ERROR: ${e}`)
@@ -82,13 +117,55 @@ app.get('/api/envdata', async (req, res) => {
 })
 
 app.post('/api/envdata', async (req, res) => {
-    if (req.headers["content-type"] != JSON_CONTENT_TYPE)
+
+    // Authenticate user
+    let token = req.header("Authorization")
+    if (token == undefined)
     {
-        res.json({"reason" : "bad content-type. API only accepts \"application/json\""})
-        res.status(400)
+        console.log("Unauthorized user tried to access API")
+        res.status(401).send()
+        return
     }
 
-    res.status(403);
+    token = crypto.createHash("sha256").update(token).digest("hex")
+    console.log(`Got token of: ${token}`)
+
+    let keyFound = false
+    {
+        loadKeys(keysPath).forEach((val, indx) => {
+            if (val === token)
+            {
+                keyFound = true
+            }
+        })
+    }
+
+    if (!keyFound)
+    {
+        console.log("Unauthorized user tried to access API")
+        res.status(401).send()
+        return
+    }
+
+    console.log("user authenticated")
+
+    // Process data
+    let data = req.body
+    let isWeatherRecord = isJsonWeatherRecord(data)
+    let reason = "OK"
+
+    if (isWeatherRecord)
+    {
+        postWeatherData(data);
+        res.status(200);
+    }
+    else
+    {
+        res.status(400)
+        reason = "Invalid JSON data"
+    }
+
+    res.json({reason : reason})
 })
 
 app.listen(port, () => {
