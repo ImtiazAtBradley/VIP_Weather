@@ -2,15 +2,14 @@
 
 namespace bc_broker
 {
-   namespace redis
+   namespace api
    {
-      constexpr static char ip[] = "127.0.0.1";
-      constexpr static int port = 6379;
+      constexpr static char url[] = "https://weather.jacobsimeone.net/api/envdata";
    } // namespace redis
 
    namespace version
    {
-      constexpr static int major = 0;
+      constexpr static int major = 1;
       constexpr static int minor = 1;
       constexpr static int patch = 0;
    } // namespace version

@@ -3,30 +3,22 @@ cmake_minimum_required(VERSION 3.10)
 project(bradley-cast-broker)
 
 set (CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set (CMAKE_CXX_STANDARD 17)
 
 set (SRCS 
 	"./main.cpp"
 	"./src/broker.cpp"
-	"./src/broker_database.cpp"
 	"./src/MessageParse.cpp"
-)
-
-set (INCLUDE_DIRS 
-	"./include"
+	"./src/utils.cpp"
 )
 
 # Add executable with sources
 add_executable(bradley-cast-broker ${SRCS})
 
-target_include_directories(bradley-cast-broker PRIVATE ${INCLUDE_DIRS})
+target_include_directories(bradley-cast-broker PUBLIC "include/")
 
-# Windows only - add location for linux headers later
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	# C Redis Client
-	target_link_libraries(bradley-cast-broker PRIVATE hiredis)
-else ()
-	target_link_libraries(bradley-cast-broker PRIVATE hiredis)
-endif()
+# curl library
+target_link_libraries(bradley-cast-broker curl)
 
 # C math
 # target_link_libraries(target m)

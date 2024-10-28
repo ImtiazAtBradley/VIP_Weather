@@ -1,51 +1,58 @@
 #include <cerrno>
-#include <chrono>
 #include <cstring>
 #include <iostream>
-#include <ratio>
+#include <fstream>
 #include <sys/stat.h>
 #include <hiredis/hiredis.h>
 #include <cstdlib>
+#include "utils.h"
 #include "broker.h"
-#include "broker_database.h"
 #include "constants.h"
 
 // ============================ MAIN PROGRAM ============================
+
+static void FailOut()
+{
+   std::cout << "INVALID INPUT. SEE USAGE:\n\n";
+   Broker::help();
+   exit(EXIT_FAILURE);
+}
 
 int
 main(int argc, char *argv[])
 {
    if (argv[1] == nullptr)
    {
-      std::cout << "INVALID INPUT. SEE USAGE:\n\n";
-      Broker::help();
-      exit(EXIT_FAILURE);
+      FailOut();
    }
 
-   BrokerDatabase brokerDb(bc_broker::redis::ip, bc_broker::redis::port, 3);
+   // Try to get the API key from the provided file
 
-   if (argc == 3 && strcmp(argv[1], "reset-ws") == 0)
+   if (argv[2] == nullptr)
    {
-      int id;
+      std::cerr << "You must provide a key file" << std::endl;
+      FailOut();
+   }
 
-      try
-      {
-         int id = std::stoi(argv[2]);
-      }
-      catch (const std::invalid_argument &e)
-      {
-         std::cout << "Invalid ID. See Usage";
-         Broker::help();
-         exit(EXIT_FAILURE);
-      }
+   std::string keyFilePath = argv[2];
 
-      brokerDb.resetDbForStation(id);
+   if (!FileExists(keyFilePath.c_str()))
+   {
+      std::cerr << "You must provide a valid key file" << std::endl;
+      FailOut();
+   }
 
-      exit(EXIT_SUCCESS);
+   std::ifstream fs(keyFilePath);
+   std::string key((std::istreambuf_iterator<char>(fs)), (std::istreambuf_iterator<char>()));
+
+   if (key == "")
+   {
+      std::cerr << "Key file is empty" << std::endl;
+      FailOut();
    }
 
    // Run broker scheduler every 20ms
-   Broker broker = Broker(brokerDb, std::chrono::duration<int, std::milli>(100), argv[1]);
+   Broker broker = Broker(std::chrono::duration<int, std::milli>(100), argv[1], bc_broker::api::url, key);
 
    // Print program header
    Broker::printProgramHeader();
@@ -65,15 +72,9 @@ main(int argc, char *argv[])
    broker.writeToPort("AT+ADDRESS=1\r\n");
 
    // TRY TO CONNECT TO REDIS SERVER
-
-   if (!broker.dbGood())
-   {
-      std::cerr << "Connection to redis DB failed\n";
-      std::cerr << "hiredis Error: " << broker.getDbError() << "\n";
-      exit(EXIT_FAILURE);
-   }
-   std::cout << "[INFO] Successfully connected to database\n";
-
+   
+   std::cout << "Starting Broker...\n";
+  
    while (1)
    {
       broker.runScheduler();
