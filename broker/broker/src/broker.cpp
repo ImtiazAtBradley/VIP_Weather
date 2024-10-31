@@ -152,9 +152,44 @@ Broker::readFromPort()
 
 // ============================== PRIVATE FUNCTIONS ==============================
 
+void
+Broker::runTasks()
+{
+   // Try to receive from buffer, and print to standard out
+   std::string rcv = readFromPort();
+
+   if (rcv.size() > 0)
+   {
+      std::cout << "[DEBUG] " << rcv;
+      std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
+      if (response)
+      {
+         std::cout << "[DEBUG] Parsed weather data: T:" << response->m_data.m_temp_c
+                   << " H:" << response->m_data.m_humid << " P:" << response->m_data.m_pressure_kpa
+                   << " R:" << response->m_data.m_isRaining << " L:" << response->m_data.m_lightLevel << "\n";
+         std::cout << "[DEBUG] Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
+                   << " SNR:" << response->m_snr << "\n";
+
+         // TDOO: Replace this with calling the API
+         if (!PostToAPI(response.value().m_data, m_url, m_apiKey))
+         {
+            std::cerr << "[ERROR] Failed to write to database\n";
+         }
+      }
+   }
+}
+
+Broker::~Broker()
+{
+   // Close file
+   close(m_fd);
+}
+
+// ============================== STATIC FUNCTIONS ===============================
+
 // Yes, a bit of a C/CPP mix, as the CURL code was originally written in C
 bool
-Broker::postToAPI(const WeatherData data)
+Broker::PostToAPI(const WeatherData data, std::string url, std::string apiKey)
 {
    CURL *curl;
    CURLcode res;
@@ -182,7 +217,7 @@ Broker::postToAPI(const WeatherData data)
          "\"humid_prcnt\":%0.2f,"
          "\"pressure_kpa\":%0.2f,"
          "\"is_raining\":%d,"
-         "\"light_level\":%s,"
+         "\"light_level\":\"%s\""
       "}", 
       GetUnixTimestamp(),
       data.m_temp_c,
@@ -216,15 +251,15 @@ Broker::postToAPI(const WeatherData data)
    }
 
    // Set up authorization header
-   snprintf(authorization, MAX_HEAD_LEN, "Authorization: %s", m_apiKey.c_str());
+   snprintf(authorization, MAX_HEAD_LEN, "Authorization: %s", apiKey.c_str());
 
    // Set our headers - content-type and authorization
-   curl_slist_append(hs, "Content-Type: application/json");
-   curl_slist_append(hs, authorization);
+   hs = curl_slist_append(hs, "Content-Type: application/json");
+   hs = curl_slist_append(hs, authorization);
    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, hs);
 
    // Set the URL and the post data
-   curl_easy_setopt(curl, CURLOPT_URL, m_url.c_str());
+   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
    // Set post data - JSON would go here, describing weather data
    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonData);
@@ -233,45 +268,11 @@ Broker::postToAPI(const WeatherData data)
    if (res != CURLE_OK)
    {
       fprintf(stderr, "Failed to perform HTTP POST transfer: \"%s\" [%d]\n", curl_easy_strerror(res), res);
-      return 1;
+      return false;
    }
 
    curl_easy_cleanup(curl);
    curl_global_cleanup();
 
-   return 0;
    return true;
-}
-
-void
-Broker::runTasks()
-{
-   // Try to receive from buffer, and print to standard out
-   std::string rcv = readFromPort();
-
-   if (rcv.size() > 0)
-   {
-      std::cout << "[DEBUG] " << rcv;
-      std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
-      if (response)
-      {
-         std::cout << "[DEBUG] Parsed weather data: T:" << response->m_data.m_temp_c
-                   << " H:" << response->m_data.m_humid << " P:" << response->m_data.m_pressure_kpa
-                   << " R:" << response->m_data.m_isRaining << " L:" << response->m_data.m_lightLevel << "\n";
-         std::cout << "[DEBUG] Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
-                   << " SNR:" << response->m_snr << "\n";
-
-         // TDOO: Replace this with calling the API
-         if (!1)
-         {
-            std::cerr << "[ERROR] Failed to write to database\n";
-         }
-      }
-   }
-}
-
-Broker::~Broker()
-{
-   // Close file
-   close(m_fd);
 }

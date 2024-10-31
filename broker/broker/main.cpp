@@ -3,7 +3,6 @@
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
-#include <hiredis/hiredis.h>
 #include <cstdlib>
 #include "utils.h"
 #include "broker.h"
@@ -11,7 +10,8 @@
 
 // ============================ MAIN PROGRAM ============================
 
-static void FailOut()
+static void
+FailOut()
 {
    std::cout << "INVALID INPUT. SEE USAGE:\n\n";
    Broker::help();
@@ -36,14 +36,13 @@ main(int argc, char *argv[])
 
    std::string keyFilePath = argv[2];
 
-   if (!FileExists(keyFilePath.c_str()))
+   std::optional<std::string> key = GetFileContent(keyFilePath);
+
+   if (!key)
    {
-      std::cerr << "You must provide a valid key file" << std::endl;
+      std::cerr << "Invalid key file path\n";
       FailOut();
    }
-
-   std::ifstream fs(keyFilePath);
-   std::string key((std::istreambuf_iterator<char>(fs)), (std::istreambuf_iterator<char>()));
 
    if (key == "")
    {
@@ -52,7 +51,8 @@ main(int argc, char *argv[])
    }
 
    // Run broker scheduler every 20ms
-   Broker broker = Broker(std::chrono::duration<int, std::milli>(100), argv[1], bc_broker::api::url, key);
+   Broker broker =
+       Broker(std::chrono::milliseconds(100), std::string(argv[1]), std::string(bc_broker::api::url), key.value());
 
    // Print program header
    Broker::printProgramHeader();
@@ -71,10 +71,8 @@ main(int argc, char *argv[])
    // HACK: Write to radio to set it up
    broker.writeToPort("AT+ADDRESS=1\r\n");
 
-   // TRY TO CONNECT TO REDIS SERVER
-   
    std::cout << "Starting Broker...\n";
-  
+
    while (1)
    {
       broker.runScheduler();

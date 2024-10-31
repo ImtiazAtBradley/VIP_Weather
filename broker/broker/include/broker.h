@@ -9,10 +9,13 @@
 class Broker
 {
  public:
-   Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key);
-   ~Broker();
+   // STATIC MEMBERS
+   static bool PostToAPI(const WeatherData data, std::string url, std::string apiKey);
    static void printProgramHeader();
    static void help();
+
+   Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key);
+   ~Broker();
    bool serialFileGood();
    bool runScheduler();
    bool setupSerialPort();
@@ -20,7 +23,6 @@ class Broker
    std::string readFromPort();
 
  private:
-   bool postToAPI(const WeatherData data);
    void runTasks();
 
    int m_fd = -1;

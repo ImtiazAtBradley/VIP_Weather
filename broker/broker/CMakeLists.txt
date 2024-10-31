@@ -12,13 +12,26 @@ set (SRCS
 	"./src/utils.cpp"
 )
 
+set (
+	TST_SRCS
+	"./src/broker.cpp"
+	"./src/MessageParse.cpp"
+	"./src/utils.cpp"
+	"./test/test.cpp"
+)
+
 # Add executable with sources
 add_executable(bradley-cast-broker ${SRCS})
 
+# Add test executable
+add_executable(bradley-cast-broker-test ${TST_SRCS})
+
 target_include_directories(bradley-cast-broker PUBLIC "include/")
+target_include_directories(bradley-cast-broker-test PUBLIC "include/")
 
 # curl library
 target_link_libraries(bradley-cast-broker curl)
+target_link_libraries(bradley-cast-broker-test curl)
 
 # C math
 # target_link_libraries(target m)

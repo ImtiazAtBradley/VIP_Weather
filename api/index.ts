@@ -4,9 +4,13 @@ import bodyParser from "body-parser";
 import fs from "fs";
 import crypto from "crypto";
 
-// DEFINITIONS =================================================================
+// GLOBALS =====================================================================
 
 const JSON_CONTENT_TYPE = "application/json"
+const port = 27500
+const keysPath : string = "./api.keys"
+
+const app = express()
 
 // TYPES =======================================================================
 
@@ -88,10 +92,6 @@ function loadKeys(path : string) : string[] | null
 }
 
 // GLOBALS =====================================================================
-
-const app = express()
-const port = 27500
-const keysPath : string = "./api.keys"
 
 // API APP =====================================================================
 
