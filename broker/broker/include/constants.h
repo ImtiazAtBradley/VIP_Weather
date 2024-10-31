@@ -2,11 +2,6 @@
 
 namespace bc_broker
 {
-   namespace api
-   {
-      constexpr static char url[] = "https://weather.jacobsimeone.net/api/envdata";
-   } // namespace redis
-
    namespace version
    {
       constexpr static int major = 1;

@@ -28,23 +28,6 @@ Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std:
     : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path)
 {
 }
-
-void
-Broker::help()
-{
-   std::cout << "\nBRADLEY CAST BROKER - ACCESS POINT OF WEATHER STATIONS TO "
-                "SERVER DATABASE\n\n"
-             << "AUTHORS:\n  BRADLEY UNIVERSITY ECE398 WEATHER STATION PROJECT GROUP 2024\n"
-             << "USAGE: \n  bradley-cast-broker [serial dev file]\n";
-}
-
-void
-Broker::printProgramHeader()
-{
-   std::cout << "BRADLEY CAST BROKER V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
-             << bc_broker::version::patch << "\n\n";
-}
-
 bool
 Broker::serialFileGood()
 {
@@ -164,16 +147,15 @@ Broker::runTasks()
       std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
       if (response)
       {
-         std::cout << "[DEBUG] Parsed weather data: T:" << response->m_data.m_temp_c
+         std::cout << "[DEBUG (" << GetUnixTimestamp() <<")] Parsed weather data: T:" << response->m_data.m_temp_c
                    << " H:" << response->m_data.m_humid << " P:" << response->m_data.m_pressure_kpa
                    << " R:" << response->m_data.m_isRaining << " L:" << response->m_data.m_lightLevel << "\n";
-         std::cout << "[DEBUG] Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
+         std::cout << "Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
                    << " SNR:" << response->m_snr << "\n";
 
-         // TDOO: Replace this with calling the API
          if (!PostToAPI(response.value().m_data, m_url, m_apiKey))
          {
-            std::cerr << "[ERROR] Failed to write to database\n";
+            std::cerr << "[ERROR] Failed to post data to API\n";
          }
       }
    }
@@ -275,4 +257,20 @@ Broker::PostToAPI(const WeatherData data, std::string url, std::string apiKey)
    curl_global_cleanup();
 
    return true;
+}
+
+void
+Broker::help()
+{
+   std::cout << "\nBRADLEY CAST BROKER - ACCESS POINT OF WEATHER STATIONS TO "
+                "SERVER DATABASE\n\n"
+             << "AUTHORS:\n  BRADLEY UNIVERSITY ECE398 WEATHER STATION PROJECT GROUP 2024\n"
+             << "USAGE: \n  bradley-cast-broker [serial dev file] [API URL] [API key file]\n";
+}
+
+void
+Broker::printProgramHeader()
+{
+   std::cout << "BRADLEY CAST BROKER V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
+             << bc_broker::version::patch << "\n\n";
 }

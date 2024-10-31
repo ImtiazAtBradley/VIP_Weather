@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <fstream>
 
+#include <iostream>
+
 int64_t
 GetUnixTimestamp()
 {
@@ -24,16 +26,16 @@ FileExists(const std::string fileName)
 }
 
 /**
- * @brief Get content of file, return false if fails
+ * @brief Get content of file
  * 
- * @return std::optional<std::string> 
+ * @return std::optional<std::string>
  */
 std::optional<std::string>
 GetFileContent(std::string filePath)
 {
     if (!FileExists(filePath))
     {
-        return nullptr;
+        return std::nullopt;
     }
 
     std::ifstream fs(filePath);

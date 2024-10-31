@@ -26,15 +26,24 @@ main(int argc, char *argv[])
       FailOut();
    }
 
-   // Try to get the API key from the provided file
-
+   // Try to get URL from command line arguments
    if (argv[2] == nullptr)
    {
-      std::cerr << "You must provide a key file" << std::endl;
+      std::cerr << "MISSING: You must provide an API URL\n";
       FailOut();
    }
 
-   std::string keyFilePath = argv[2];
+   std::string url = argv[2]; // Kind of trusting here this was a valid URL
+
+   // Try to get the API key from the provided file
+
+   if (argv[3] == nullptr)
+   {
+      std::cerr << "MISSING: You must provide a key file" << std::endl;
+      FailOut();
+   }
+
+   std::string keyFilePath = argv[3];
 
    std::optional<std::string> key = GetFileContent(keyFilePath);
 
@@ -52,7 +61,7 @@ main(int argc, char *argv[])
 
    // Run broker scheduler every 20ms
    Broker broker =
-       Broker(std::chrono::milliseconds(100), std::string(argv[1]), std::string(bc_broker::api::url), key.value());
+       Broker(std::chrono::milliseconds(100), std::string(argv[1]), url, key.value());
 
    // Print program header
    Broker::printProgramHeader();
