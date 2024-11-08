@@ -8,7 +8,7 @@ async function getEnvironmentData() {
   let res = null;
 
   try {
-    res = await fetch("http://beccweather.bradley.edu/api/envdata", { cache: "no-store" })
+    res = await fetch("http://weather.jacobsimeone.net:27500/api/envdata", { cache: "no-store" })
   } catch (error) {
     return null
   }
@@ -75,7 +75,7 @@ export default async function Page() {
           Info!
         </div>
         <div className="border border-t-0 border-orange-400 rounded-b bg-orange-100 px-4 py-3 text-orange-700">
-          <p>Weather Station is currently indoors, and is reading indoor data. Values updates happen every 5 seconds. Refresh page in order to see new data.</p>
+          <p>Please note that the data you are seeing is INSIDE data, from the BECC 4261 Controls Lab, where the weather station is currently located. This website will post an announcement when outside data is now being shown!</p>
         </div>
       </div>
       <div className="flex justify-center">

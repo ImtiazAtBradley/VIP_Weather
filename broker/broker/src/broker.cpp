@@ -143,7 +143,7 @@ Broker::runTasks()
 
    if (rcv.size() > 0)
    {
-      std::cout << "[DEBUG] " << rcv;
+      std::cout << "[DEBUG] Raw from radio:" << rcv;
       std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
       if (response)
       {
@@ -153,7 +153,8 @@ Broker::runTasks()
          std::cout << "Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
                    << " SNR:" << response->m_snr << "\n";
 
-         if (!PostToAPI(response.value().m_data, m_url, m_apiKey))
+
+         if (!Broker::PostToAPI(response->m_data, m_url, m_apiKey))
          {
             std::cerr << "[ERROR] Failed to post data to API\n";
          }
@@ -171,7 +172,7 @@ Broker::~Broker()
 
 // Yes, a bit of a C/CPP mix, as the CURL code was originally written in C
 bool
-Broker::PostToAPI(const WeatherData data, std::string url, std::string apiKey)
+Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
 {
    CURL *curl;
    CURLcode res;

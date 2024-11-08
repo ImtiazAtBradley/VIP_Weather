@@ -10,7 +10,7 @@ class Broker
 {
  public:
    // STATIC MEMBERS
-   static bool PostToAPI(const WeatherData data, std::string url, std::string apiKey);
+   static bool PostToAPI(WeatherData data, std::string url, std::string apiKey);
    static void printProgramHeader();
    static void help();
 

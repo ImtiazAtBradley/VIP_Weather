@@ -1,7 +1,9 @@
 #include <cerrno>
 #include <cstring>
+#include <algorithm>
 #include <iostream>
 #include <fstream>
+#include <regex>
 #include <sys/stat.h>
 #include <cstdlib>
 #include "utils.h"
@@ -53,15 +55,25 @@ main(int argc, char *argv[])
       FailOut();
    }
 
+   // Hacky, but works for our purposes - check for ascii only in the future too
+   auto check_whitespace = [](char x) { return x == ' ' || x == '\n' || x == '\r' || x == '\t'; };
+   bool contains_whitespace = std::find_if(key.value().begin(), key.value().end(), check_whitespace) != key.value().end();
+
    if (key == "")
    {
       std::cerr << "Key file is empty" << std::endl;
       FailOut();
    }
+   else if (contains_whitespace)
+   {
+      std::cerr << "Key file contains invalid whitespace, did you accidentally leave some?" << std::endl;
+      std::cerr << "Got api key: \"" << key.value() << "\"\n";
+      FailOut();
+   }
 
    // Run broker scheduler every 20ms
    Broker broker =
-       Broker(std::chrono::milliseconds(100), std::string(argv[1]), url, key.value());
+       Broker(std::chrono::milliseconds(1000), std::string(argv[1]), url, key.value());
 
    // Print program header
    Broker::printProgramHeader();

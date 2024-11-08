@@ -8,8 +8,13 @@
 #include <iostream>
 #include <optional>
 
+#include "curl/curl.h"
+
 #include "broker.h"
+#include "MessageParse.h"
+#include "MessageResponse.h"
 #include "WeatherData.h"
+#include "constants.h"
 #include "utils.h"
 
 #define API_TEST ("API Test")
@@ -39,12 +44,22 @@ void PrintTestResult(std::string testName, bool pass, std::string errDesc = "")
 
 void ApiTest()
 {
+    bool rc = true;
+
     // API Test
     PrintTestHeader(API_TEST);
 
-    WeatherData wd = WeatherData(20.5f, 85.3f, 998.4f, true, LightLevel::SUNNY);
-
-    bool rc = Broker::PostToAPI(wd, "https://weather.jacobsimeone.net/api/envdata", "fake-api-key");
+    std::string rxStr = "+RCV=0,27,T22.72|H37.07|P100.35|R0|L1,-60,37";
+    std::optional<MessageResponse> res = MessageParse::parseMessage(rxStr);
+    
+    if (!res)
+    {
+        rc = false;
+    }
+    else
+    {
+        rc = Broker::PostToAPI(res->m_data, "https://weather.jacobsimeone.net/api/envdata", "fake-api-key");
+    }
 
     PrintTestResult(API_TEST, rc, "No error desc");
 }
@@ -71,7 +86,7 @@ int main()
     std::cout << "Starting Tests\n";
 
     // Makes a network call - only use this test if absolutely necessary
-    // ApiTest();
+    ApiTest();
 
     FileReadTest();
 }
