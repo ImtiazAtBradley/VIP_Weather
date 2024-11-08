@@ -23,7 +23,7 @@ ChartJS.register(
     Legend
 );
 
-export default function EnvironmentLineGraph({ xlabels, label, title, color, backgroundColor, d }: { xlabels: number[], label: string, title: string, color: string, backgroundColor: string, d: { time: string, val: number }[] }) {
+export default function EnvironmentLineGraph({ xlabels, label, title, color, backgroundColor, d }: { xlabels: number[], label: string, title: string, color: string, backgroundColor: string, d: any }) {
 
     let data = {
         labels: xlabels,

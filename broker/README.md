@@ -4,9 +4,10 @@ The broker program is designed to go along with the weather station website, and
 
 NOTE: This software will only work with POSIX compliant systems (linux/MacOs). Only tested for Ubuntu
 
-# Requirements
+# Changelog:
 
-- [ ] Receives and parses messages received through serial port via radio. (Abstract through port api)
-- [ ] Publishes received data to redis database
-- [ ] User can input redis server destination
-- [ ] Logs failures to stdout/stderr
+**V 1.1.0**
+
+- Removed hiredis, broker now publishes to weather station API
+- Configurable API key through file
+- Configurable URL through arguments
