@@ -10,6 +10,7 @@ import {
     Title,
     Tooltip,
     Legend,
+    scales,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -23,8 +24,7 @@ ChartJS.register(
     Legend
 );
 
-export default function EnvironmentLineGraph({ xlabels, label, title, color, backgroundColor, d }: { xlabels: number[], label: string, title: string, color: string, backgroundColor: string, d: any }) {
-
+export default function EnvironmentLineGraph({ xlabels, label, title, color, backgroundColor, d}: { xlabels: string[], label: string, title: string, color: string, backgroundColor: string, d: any}) {
     let data = {
         labels: xlabels,
         datasets: [
@@ -37,7 +37,7 @@ export default function EnvironmentLineGraph({ xlabels, label, title, color, bac
         ]
     }
 
-    let options = {
+    let options: any = {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {

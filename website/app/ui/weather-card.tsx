@@ -34,7 +34,7 @@ function WeatherIcon({ light_level }: { light_level: string }) {
         )
     } else {
         return (
-            <HiMoon className="h-36 w-36 text-gray-700" />
+            <HiMoon className="h-32 w-32 text-gray-700" />
         )
     }
 }

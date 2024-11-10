@@ -11,7 +11,7 @@ export default function Page() {
                     <div className="p-6">
                         <p className="text-lg">
                             The BECC Weather Station is a collaborative project within the Electrical & Computer Engineering Vertically Integrated Projects class (ECE 398), designed by students to deploy outdoors
-                            on Bradley&aposs campus, in order to inform other students on campus of the current weather, or even predict it in the future!
+                            on Bradley's campus, in order to inform other students on campus of the current weather, or even predict it in the future!
                         </p>
                     </div>
                 </div>
@@ -21,12 +21,12 @@ export default function Page() {
                     </div>
                     <div className="p-6">
                         <p className="text-lg">
-                            Vertically Integrated Projects is a class within Bradley&aposs Electrical Engineering department responsible for the development and maintenence of the BECC Weather Station. Vertically Integrated Projects (or VIP)
-                            is a class where students are encouraged to use and share knowledge amongst themselves to create &quotproducts&quot like the weather station to gain professional experience with hands-on projects.
+                            Vertically Integrated Projects is a class within Bradley's Electrical Engineering department responsible for the development and maintenence of the BECC Weather Station. Vertically Integrated Projects (or VIP)
+                            is a class where students are encouraged to use and share knowledge amongst themselves to create "products" like the weather station to gain professional experience with hands-on projects.
                         </p>
                     </div>
                 </div>
-                <div className="text-center shadow-lg rounded border border-gray-200 mt-5 p-5">
+                <div className="text-center shadow-lg rounded border border-gray-200 mt-5 p-5 mb-10">
                     <div className="text-4xl font-bold mt-10">
                         Who built this thing?
                     </div>
