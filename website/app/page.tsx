@@ -39,7 +39,7 @@ async function getEnvironmentData() {
       hours = hours - 12;
     }
 
-    let graphTimeStr = `${now.getHours()}:${now.getMinutes()} ${suffix}`
+    let graphTimeStr = `${hours}:${now.getMinutes()} ${suffix}`
 
     time.push(graphTimeStr)
     temp_f.push(Math.round((element.temp_c * 9 / 5 + 32) * 10) / 10)

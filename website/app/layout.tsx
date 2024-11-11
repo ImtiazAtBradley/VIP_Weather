@@ -9,6 +9,7 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="en">
+			<title>BECC Weather - ECE398</title>
 			<body>
 				<div className='flex flex-col h-full'>
 					<main className={`flex flex-col md:p-6 mb-auto p-2 ${RedHatDisplay.className}`}>
