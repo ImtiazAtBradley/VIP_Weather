@@ -22,6 +22,7 @@ async function getEnvironmentData() {
   // Return an array with relative times + temp/pres/humid data
 
   let time = []
+  let timestamp : string[]= []
   let temp_f = []
   let pressure_kpa = []
   let humidity_prcnt = []
@@ -33,6 +34,9 @@ async function getEnvironmentData() {
     let now = new Date(parseInt(element.timestamp.split("-")[0]))
     let hours = now.getHours();
     let suffix = hours > 12 ? "PM" : "AM"
+
+    // Set timestamp string
+    timestamp[i] = now.toString();
 
     // Convert to normal people time
     if (hours > 12) {
@@ -54,7 +58,7 @@ async function getEnvironmentData() {
   humidity_prcnt = humidity_prcnt.reverse()
   light_level = light_level.reverse()
 
-  return { times: time, temp_f: temp_f, pressure_kpa: pressure_kpa, humidity_prcnt: humidity_prcnt, light_level: light_level }
+  return { times: time, timestamps: timestamp, temp_f: temp_f, pressure_kpa: pressure_kpa, humidity_prcnt: humidity_prcnt, light_level: light_level }
 }
 
 function Charts({ time, temperature, humidity, pressure, lightLevel }: { time: string[], temperature: number[], humidity: number[], pressure: number[], lightLevel: string[] }) {
@@ -101,6 +105,7 @@ export default async function Page() {
   let currentPressure = weatherData.pressure_kpa.slice(-1)[0]
   let currentHumidity = weatherData.humidity_prcnt.slice(-1)[0]
   let currentLightLevel = weatherData.light_level.slice(-1)[0]
+  let lastUpdated = weatherData.timestamps.slice(-1)[0]
 
   return (
     <>
@@ -122,7 +127,11 @@ export default async function Page() {
         <h1 className="text-center">Historical Environment Data</h1>
       </div>
       <Charts time={weatherData.times} temperature={weatherData.temp_f} humidity={weatherData.humidity_prcnt} pressure={weatherData.pressure_kpa} lightLevel={weatherData.light_level} />
-      <p className="px-10">For more data, access our API, which you can find out more about in our <a href="/documentation" className="text-red-700 hover:text-red-500">documentation</a>.</p>
+      <div className="px-10">
+        <p className="text-sm opacity-75">This data was last updated at: {lastUpdated}</p>
+        <br></br>
+        <p>For more data, access our API, which you can find out more about in our <a href="/documentation" className="text-red-700 hover:text-red-500">documentation</a>.</p>
+      </div>
     </>
   );
 }
