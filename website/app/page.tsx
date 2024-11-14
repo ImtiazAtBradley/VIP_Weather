@@ -57,6 +57,7 @@ async function getEnvironmentData() {
   pressure_kpa = pressure_kpa.reverse()
   humidity_prcnt = humidity_prcnt.reverse()
   light_level = light_level.reverse()
+  timestamp = timestamp.reverse()
 
   return { times: time, timestamps: timestamp, temp_f: temp_f, pressure_kpa: pressure_kpa, humidity_prcnt: humidity_prcnt, light_level: light_level }
 }
@@ -82,8 +83,8 @@ function TheBeccWeatherStation() {
   return (<>
     <div className="flex-col justify-center">
       <h1 className="mt-10 md:text-5xl text-3xl text-center">The BECC Weather Station</h1>
-      <div className="py-5 px-10">
-        <p>The BECC (Business and Engineering Convergence Center) weather station is a student-built environmental measurement device that reports its current and past data through an API, which this website is using. The weather station is located at Bradley University, in or near the BECC building on the north side of Bradley University's campus. For more information, see our <a href="/about" className="hover:text-red-500 text-red-700">about</a> section, and also be sure to visit our repository on <a className="hover:text-red-500 text-red-700" href="https://github.com/ImtiazAtBradley/VIP_Weather" target="_blank">GitHub</a>.</p>
+      <div className="py-5 px-10 text-xl">
+        <p>The BECC (Business and Engineering Convergence Center) weather station is a student-built environmental measurement device that reports its current and past data through an API, which this website is using. The weather station is located at Bradley University, in or near the BECC building on the north side of Bradley University's campus. For more information, see our <a href="/about" className="hover:text-red-500 text-red-700">about</a> section, and also be sure to visit our repository on <a className="hover:text-red-500 text-red-700" href="https://github.com/ImtiazAtBradley/VIP_Weather" target="_blank">GitHub</a>. <br/><br/> <strong>For any questions, comments, or concerns please <a className="hover:text-red-500 text-red-700" href="/contact">Contact Us</a>.</strong></p>
       </div>
     </div>
   </>)
