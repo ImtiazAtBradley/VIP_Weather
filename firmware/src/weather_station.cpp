@@ -84,7 +84,7 @@ reset_radio(int rstPin) {
 
     digitalWrite(rstPin, LOW);
     // 5 ms should be more than enough
-    delay(5);
+    delay(100);
     digitalWrite(rstPin, HIGH);
 }
 
@@ -93,9 +93,30 @@ send_cmd(const String& str) {
     Serial1.print(str + "\r\n");
 }
 
-void
+// True on success, false on fail - quick & dirty
+bool
 set_address(int address) {
-    send_cmd("AT+ADDRESS=" + String(address));
+    int retry = 0;
+    int rxAttempts = 0;
+    String rx;
+    while (retry <= 3) {
+        send_cmd("AT+ADDRESS=" + String(address));
+        // Wait for response
+        while (rxAttempts <= 10) {
+            rx += Serial1.readString();
+            rx.trim();
+            if (rx == "+OK") {
+                // Successfully configured
+                return true;
+            }
+            delay(100);
+            rxAttempts++;
+        }
+
+        retry++;
+    }
+
+    return false;
 }
 
 void
@@ -133,13 +154,17 @@ ws_init() {
 
     hal_setup_digital();
 
+    hal_set_led(1);
+
     Wire.begin(21, 22, 5000);
 
     Serial1.begin(115200);
 
     // Setup radio
     reset_radio(13);
-    set_address(0);
+    if (!set_address(0)) {
+        return false;
+    }
 
     return hal_setup_bme();
 }
@@ -207,4 +232,10 @@ ws_tx_data(int address, const String& data) {
 void
 ws_set_status_led(bool ledState) {
     hal_set_led(ledState);
+}
+
+void
+ws_reset_controller() {
+    // Perform a soft restart of the ESP32
+    ESP.restart();
 }
