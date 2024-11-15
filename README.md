@@ -232,6 +232,10 @@ server {
 }
 ```
 
+# Hardware
+
+Our CAD is available on OnShape [here](https://cad.onshape.com/documents/38c15368c41f2224b0adceca/w/e0d05cb6b75a73d47582f798/e/6f88f03cdb676fd77e352c81?renderMode=0&uiState=67379f735b55a90b07161a8f). This is also where electrical schematics will be living for now, unless otherwise noted here. Note that the CAD may not be completely up to date with the current weather station implementation. 
+
 # Contributors
 
 **Spring 2024**
