@@ -28,19 +28,20 @@ export default function RootLayout({
 									<p className='text-red text-red-300'>Electrical & Computer Engineering Department 2024</p>
 									<p className='text-red text-red-300'>Bradley University</p>
 								</div>
-								<div className="mt-12 flex flex-col items-center text-sm text-white">
-									<div className="order-1 md:order-2">
-										<a href="/about"><span className="px-2">About</span></a>
-										<a href="/contact">
-											<span className="px-2 border-l">Contact</span>
-										</a>
-										<a href="/documentation">
-											<span className="px-2 border-l">Documentation</span>
-										</a>
-										<a href="https://github.com/ImtiazAtBradley/VIP_Weather" target='_blank'>
-											<span className="px-2 border-l">GitHub</span>
-										</a>
-									</div>
+								<div className="mt-12 flex flex-col sm:flex-row justify-center items-center text-sm text-white">
+									<a href="/about"><span className="px-2">About</span></a>
+									<a href="/contact">
+										<span className="sm:px-2 sm:border-l">Contact</span>
+									</a>
+									<a href="/documentation">
+										<span className="sm:px-2 sm:border-l">Documentation</span>
+									</a>
+									<a href="/data-collection">
+										<span className="sm:px-2 sm:border-l">Data Policy</span>
+									</a>
+									<a href="https://github.com/ImtiazAtBradley/VIP_Weather" target='_blank'>
+										<span className="sm:px-2 sm:border-l">GitHub</span>
+									</a>
 								</div>
 							</div>
 						</div>

@@ -2,7 +2,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "next dev -p 3000",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
     "start": "next start"
@@ -14,6 +14,7 @@
     "autoprefixer": "^10.4.19",
     "chart.js": "^4.4.2",
     "clsx": "^2.0.0",
+    "luxon": "^3.5.0",
     "next": "^14.2.2",
     "postcss": "8.4.31",
     "react": "18.2.0",
@@ -24,6 +25,7 @@
     "typescript": "5.2.2"
   },
   "devDependencies": {
+    "@types/luxon": "^3.4.2",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.14",
     "@vercel/style-guide": "^5.0.1",
