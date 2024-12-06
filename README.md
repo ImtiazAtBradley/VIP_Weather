@@ -121,6 +121,19 @@ node index.js
 
 The website does not have to be installed on the same system as the other two pieces of software, and can be installed on another machine, as long as the website and it's clients have access to the webserver running the API, as this is where the data for the website comes from. 
 
+**Putting the website in maintenance mode**
+
+The website has a feature called "maintenance mode" which gives developers an easy way to put the website into a mode that informs users the website is currently down. In order to do this, navigate to the root directory of the website (should be "`website/`" unless you have changed something) and create two files:
+
+- `under-maintenance.txt` -> Create this file in the root website directory to put the website into maintance mode. You do not have to put any content into this file, just the presence is enough.
+- `maintenance.log` -> Create this file in the same directory as `under-maintenance.txt`. This file is where maintenance log information that is newline seperated. The contents of this file will be shown to users as a log of past maintenance. The expected format of this file is as shown below:
+
+```
+[2024-12-02T10:30:00-06:00] Your description here...
+[2024-11-21T14:00:00-06:00] Your description here...
+```
+> Note that timestamps are in ISO8601 format
+
 **Requirements**
 - Can run npm and required packages
 - Can access the server running the API software
