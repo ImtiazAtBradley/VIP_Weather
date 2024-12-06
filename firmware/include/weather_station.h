@@ -16,6 +16,7 @@ typedef struct {
     float temp_c;
     float pres_kpa;
     float humid;
+    float gas_kohms;
     bool isRaining;
     bool isSunny;
 } weather_data_t;
@@ -49,6 +50,8 @@ float ws_get_humidity();
  */
 float ws_get_pressure();
 
+float ws_get_gas_sensor();
+ 
 /**
  * @brief Check if it is currently raining
  * 
