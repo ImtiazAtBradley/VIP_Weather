@@ -73,4 +73,10 @@ int ws_raw_raining();
 
 int ws_raw_light();
 
+/**
+ * @brief Shall soft reset the controller operating the weather station
+ * 
+ */
+void ws_reset_controller();
+
 #endif

@@ -26,7 +26,10 @@ bool isRaining = false, isSunny = false;
 
 static weather_data_t wd = {0};
 
-static long lastBlink = LONG_MAX;
+#ifdef DEBUG
+static long lastDebug = LONG_MAX;
+#endif
+
 static long lastTransmit = LONG_MAX;
 
 void
@@ -35,19 +38,31 @@ setup() {
 
     Serial.println("BOOTING...");
 
-    delay(1000);
+    delay(500);
 
-    while (!ws_init()) {
+    // ws_init also turns on status LED
+    if(!ws_init()) {
         // Blink a couple times to notify user
         for (int i = 0; i < 3; ++i) {
-            ws_set_status_led(true);
-            delay(1000);
             ws_set_status_led(false);
             delay(1000);
+            ws_set_status_led(true);
+            delay(1000);
         }
+
+        Serial.println("BOOT RTRY");
+        // Wait before soft restart
+        delay(1000);
+        // Perform a soft restart
+        ws_reset_controller();
     }
 
     Serial.println("BOOT OK");
+
+    // Turn off status LED after boot 
+    // delay to make it clear this was the boot exiting
+    ws_set_status_led(false);
+    delay(1000);
 }
 
 void
@@ -64,13 +79,13 @@ loop() {
     wd.pres_kpa = pres_kpa;
     wd.isSunny = isSunny;
 
-    if (millis() - lastBlink > 15000) {
+
+#ifdef DEBUG
+    if (millis() - lastDebug > 15000) {
         // Blink to indicate it's not dead
         ws_set_status_led(true);
         delay(20);
         ws_set_status_led(false);
-
-#ifdef DEBUG
         // Print out some debug stuff
         Serial.println("[DEBUG] CURRENT VALUES: ");
         Serial.print("Water Level..........");
@@ -90,10 +105,10 @@ loop() {
         Serial.print("\n");
 
         Serial.print("........................................\n");
-#endif
 
-        lastBlink = millis();
+        lastDebug = millis();
     }
+#endif
 
     if (millis() - lastTransmit > TX_INTERVAL_MS) {
 
@@ -105,10 +120,13 @@ loop() {
         lightLevel = String(wd.isSunny);
         String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|R" + isRaining + "|L" + lightLevel;
 
+        #ifdef DEBUG
+        Serial.println("Transmitting data...");
+        #endif
         ws_tx_data(1, d);
 
         ws_set_status_led(true);
-        delay(15);
+        delay(30);
         ws_set_status_led(false);
 
         lastTransmit = millis();

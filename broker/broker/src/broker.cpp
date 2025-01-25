@@ -1,66 +1,37 @@
-#include "broker.h"
-#include "MessageParse.h"
-#include "MessageResponse.h"
-#include "WeatherData.h"
-#include "broker_database.h"
-#include "constants.h"
-#include <chrono>
-#include <optional>
-#include <ratio>
-#include <stdexcept>
-#include <string>
-#include <iostream>
+// System Includes
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <vector>
 #include <cstring>
+#include <iostream>
 
-Broker::Broker(BrokerDatabase &brokerDb, std::chrono::milliseconds schedulerTimeMs, std::string path)
-    : m_database(brokerDb), m_frequency_ms(schedulerTimeMs), m_filePath(path)
+// Libs
+#include "curl/curl.h"
+
+// Internal Libs
+#include "broker.h"
+#include "MessageParse.h"
+#include "MessageResponse.h"
+#include "WeatherData.h"
+#include "constants.h"
+#include "utils.h"
+
+// Definitions
+
+#define MAX_JSON_SIZE   (250) // Should be more than enough for weather data - adjust as needed
+#define MAX_HEAD_LEN    (50)  // Maximum HTTP header len for this application
+#define MAX_LIGHT_LEVEL (10)  // Maximum length of light level string
+
+Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key)
+    : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path)
 {
 }
-
-Broker::Broker(BrokerDatabase &&brokerDb) : m_database(brokerDb) {}
-
-void
-Broker::help()
-{
-   std::cout << "\nBRADLEY CAST BROKER - ACCESS POINT OF WEATHER STATIONS TO "
-                "SERVER DATABASE\n\n"
-             << "AUTHORS:\n  BRADLEY UNIVERSITY ECE398 WEATHER STATION PROJECT GROUP 2024\n"
-             << "USAGE: \n  bradley-cast-broker [serial dev file]\n"
-             << "OR\n"
-             << "bradley-cast-broker reset-ws [ID]\n"
-             << "  serial dev file: A device file representing a serial adapter like '/dev/ttyx'\n"
-             << "  ID: The id of the weather station\n";
-}
-
-void
-Broker::printProgramHeader()
-{
-   std::cout << "BRADLEY CAST BROKER V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
-             << bc_broker::version::patch << "\n\n";
-}
-
-bool
-Broker::dbGood()
-{
-   return m_database.good();
-}
-
 bool
 Broker::serialFileGood()
 {
-   return fileExists();
-}
-
-std::string
-Broker::getDbError()
-{
-   return m_database.getErr();
+   return FileExists(m_filePath.c_str());
 }
 
 bool
@@ -162,60 +133,30 @@ Broker::readFromPort()
    return std::string(buf, strlen(buf));
 }
 
-bool
-Broker::resetDb(const int id)
-{
-   bool rc = m_database.resetDbForStation(id);
-   if (rc){
-      std::cout << "[DEBUG] " << "Successfully reset weather station with ID: " << id << "\n";
-   } else {
-      std::cerr << "[ERROR] " << "ERROR reseting weather station with ID: " << id << "\n";
-   }
-   return rc;
-}
-
 // ============================== PRIVATE FUNCTIONS ==============================
-
-/*
- * Source:
- * https://stackoverflow.com/questions/12774207/fastest-way-to-check-if-a-file-exists-using-standard-c-c11-14-17-c
- */
-bool
-Broker::fileExists()
-{
-   struct stat buffer;
-   return (stat(m_filePath.c_str(), &buffer) == 0);
-}
-
-bool
-Broker::writeToDb(const MessageResponse &response)
-{
-
-   return m_database.postStreamData(response.m_id, response.m_data);
-}
 
 void
 Broker::runTasks()
 {
    // Try to receive from buffer, and print to standard out
    std::string rcv = readFromPort();
-   std::optional<WeatherData> weatherData;
 
    if (rcv.size() > 0)
    {
-      std::cout << "[DEBUG] " << rcv;
+      std::cout << "[DEBUG] Raw from radio:" << rcv;
       std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
       if (response)
       {
-         std::cout << "[DEBUG] Parsed weather data: T:" << response->m_data.m_temp_c
+         std::cout << "[DEBUG (" << GetUnixTimestamp() <<")] Parsed weather data: T:" << response->m_data.m_temp_c
                    << " H:" << response->m_data.m_humid << " P:" << response->m_data.m_pressure_kpa
                    << " R:" << response->m_data.m_isRaining << " L:" << response->m_data.m_lightLevel << "\n";
-         std::cout << "[DEBUG] Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
+         std::cout << "Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
                    << " SNR:" << response->m_snr << "\n";
 
-         if (!writeToDb(response.value()))
+
+         if (!Broker::PostToAPI(response->m_data, m_url, m_apiKey))
          {
-            std::cerr << "[ERROR] Failed to write to database\n";
+            std::cerr << "[ERROR] Failed to post data to API\n";
          }
       }
    }
@@ -225,4 +166,112 @@ Broker::~Broker()
 {
    // Close file
    close(m_fd);
+}
+
+// ============================== STATIC FUNCTIONS ===============================
+
+// Yes, a bit of a C/CPP mix, as the CURL code was originally written in C
+bool
+Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
+{
+   CURL *curl;
+   CURLcode res;
+   // Data structure to hold headers
+   struct curl_slist *hs = NULL;
+   char authorization[MAX_HEAD_LEN] = {0};
+   char jsonData[MAX_JSON_SIZE] = {0};
+   char lightLevel[MAX_LIGHT_LEVEL] = {0};
+
+   // Translate light level from enum to string key
+   switch (data.m_lightLevel)
+   {
+      case LightLevel::SUNNY:
+         strcpy(lightLevel, "SUNNY");
+         break;
+      case LightLevel::DARK:
+         strcpy(lightLevel, "DARK");
+         break;
+   }
+
+   snprintf(jsonData, MAX_JSON_SIZE, 
+      "{"
+         "\"timestamp\":%ld,"
+         "\"temp_c\":%0.2f,"
+         "\"humid_prcnt\":%0.2f,"
+         "\"pressure_kpa\":%0.2f,"
+         "\"is_raining\":%d,"
+         "\"light_level\":\"%s\""
+      "}", 
+      GetUnixTimestamp(),
+      data.m_temp_c,
+      data.m_humid,
+      data.m_pressure_kpa,
+      data.m_isRaining,
+      lightLevel
+   );
+
+   if (strlen(jsonData) > MAX_JSON_SIZE)
+   {
+      // JSON data is too big - for whatever reason
+      fprintf(stderr, "JSON data is too long\n");
+      return -1;
+   }
+
+   // Initialize CURL
+   res = curl_global_init(CURL_GLOBAL_ALL);
+   if (res != CURLE_OK)
+   {
+      fprintf(stderr, "Failed to initialize libcurl \"%s\" [%d]\n", curl_easy_strerror(res), res);
+      return 1;
+   }
+
+   // Initialize CURL - pt 2
+   curl = curl_easy_init();
+   if (curl == NULL)
+   {
+      fprintf(stderr, "Failed to get CURL handle\n");
+      return 1;
+   }
+
+   // Set up authorization header
+   snprintf(authorization, MAX_HEAD_LEN, "Authorization: %s", apiKey.c_str());
+
+   // Set our headers - content-type and authorization
+   hs = curl_slist_append(hs, "Content-Type: application/json");
+   hs = curl_slist_append(hs, authorization);
+   curl_easy_setopt(curl, CURLOPT_HTTPHEADER, hs);
+
+   // Set the URL and the post data
+   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+   // Set post data - JSON would go here, describing weather data
+   curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonData);
+
+   res = curl_easy_perform(curl);
+   if (res != CURLE_OK)
+   {
+      fprintf(stderr, "Failed to perform HTTP POST transfer: \"%s\" [%d]\n", curl_easy_strerror(res), res);
+      return false;
+   }
+
+   curl_easy_cleanup(curl);
+   curl_global_cleanup();
+
+   return true;
+}
+
+void
+Broker::help()
+{
+   std::cout << "\nBRADLEY CAST BROKER - ACCESS POINT OF WEATHER STATIONS TO "
+                "SERVER DATABASE\n\n"
+             << "AUTHORS:\n  BRADLEY UNIVERSITY ECE398 WEATHER STATION PROJECT GROUP 2024\n"
+             << "USAGE: \n  bradley-cast-broker [serial dev file] [API URL] [API key file]\n";
+}
+
+void
+Broker::printProgramHeader()
+{
+   std::cout << "BRADLEY CAST BROKER V" << bc_broker::version::major << "." << bc_broker::version::minor << "."
+             << bc_broker::version::patch << "\n\n";
 }
