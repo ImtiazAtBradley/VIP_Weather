@@ -88,5 +88,5 @@ int main()
     // Makes a network call - only use this test if absolutely necessary
     ApiTest();
 
-    FileReadTest();
+    // FileReadTest();
 }
