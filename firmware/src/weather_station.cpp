@@ -11,21 +11,17 @@
 #include <weather_station.h>
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BME680.h>
+#include <Adafruit_BME280.h>
 #include <weather_station.h>
 
-#define BME_SCK (18)
-#define BME_MISO (19)
-#define BME_MOSI (23)
-#define BME_CS (17)
-#define LED_PIN (12)
+#define LED_PIN (19)
 
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
 
 // BME280
-Adafruit_BME680 bme680(BME_CS, BME_MOSI, BME_MISO, BME_SCK);
+Adafruit_BME280 bme; // I2C
 
 /* ========================================================================== */
 /*                              PRIVATE FUNCTIONS                             */
@@ -50,15 +46,7 @@ hal_setup_digital() {
 
 bool
 hal_setup_bme() {
-    bool rc = !bme680.begin();
-
-    rc |= !bme680.setTemperatureOversampling(BME680_OS_8X);
-    rc |= !bme680.setHumidityOversampling(BME680_OS_2X);
-    rc |= !bme680.setPressureOversampling(BME680_OS_4X);
-    rc |= !bme680.setIIRFilterSize(BME680_FILTER_SIZE_3);
-    rc |= !bme680.setGasHeater(320, 150);
-
-    return !rc;
+    return bme.begin(BME280_ADDRESS_ALTERNATE);
 }
 
 /**
@@ -68,7 +56,7 @@ hal_setup_bme() {
  */
 float
 hal_get_temperature_bme() {
-  return bme680.readTemperature();
+    return bme.readTemperature();
 }
 
 /**
@@ -78,7 +66,7 @@ hal_get_temperature_bme() {
  */
 float
 hal_get_humidity_bme() {
-    return bme680.readHumidity();
+    return bme.readHumidity();
 }
 
 /**
@@ -88,14 +76,7 @@ hal_get_humidity_bme() {
  */
 float
 hal_get_pressure_bme() {
-    return bme680.readPressure();
-}
-
-//returns gas sensor analog value in ohms
-uint32_t
-hal_get_gas_sensor()
-{
-    return bme680.readGas();
+    return bme.readPressure();
 }
 
 void
@@ -217,11 +198,6 @@ ws_get_humidity() {
 float
 ws_get_pressure() {
     return hal_get_pressure_bme() / 1000.0f; // Convert o kPa
-}
-
-float
-ws_get_gas_sensor(){
-    return hal_get_gas_sensor() / 1000.0f; //Convert to kOhms
 }
 
 bool

@@ -21,7 +21,7 @@
 /*                                MAIN PROGRAM                                */
 /* ========================================================================== */
 
-static float temp_c = 0.0f, humidity = 0.0f, pres_kpa = 0.0f, gas_kohms = 0.0f;
+static float temp_c = 0.0f, humidity = 0.0f, pres_kpa = 0.0f;
 bool isRaining = false, isSunny = false;
 
 static weather_data_t wd = {0};
@@ -71,14 +71,12 @@ loop() {
     isRaining = ws_is_raining();
     humidity = ws_get_humidity();
     pres_kpa = ws_get_pressure();
-    gas_kohms = ws_get_gas_sensor();
     isSunny = ws_is_sunny();
 
     wd.temp_c = temp_c;
     wd.isRaining = isRaining;
     wd.humid = humidity;
     wd.pres_kpa = pres_kpa;
-    wd.gas_kohms = gas_kohms;
     wd.isSunny = isSunny;
 
 
@@ -105,10 +103,6 @@ loop() {
         Serial.print("Temperature..........");
         Serial.print(ws_get_temperature());
         Serial.print("\n");
-        Serial.print("Gas Sensor...........");
-        Serial.print(ws_get_gas_sensor());
-        Serial.print("\n");
-        
 
         Serial.print("........................................\n");
 
@@ -118,14 +112,13 @@ loop() {
 
     if (millis() - lastTransmit > TX_INTERVAL_MS) {
 
-        String temp_c, humid, pres_kpa, isRaining, lightLevel, gas_kohms;
+        String temp_c, humid, pres_kpa, isRaining, lightLevel;
         temp_c = String(wd.temp_c);
         humid = String(wd.humid);
         pres_kpa = String(wd.pres_kpa);
-        gas_kohms = String(wd.gas_kohms);
         isRaining = String(wd.isRaining);
         lightLevel = String(wd.isSunny);
-        String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|G" + gas_kohms + "|R" + isRaining + "|L" + lightLevel;
+        String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|R" + isRaining + "|L" + lightLevel;
 
         #ifdef DEBUG
         Serial.println("Transmitting data...");
