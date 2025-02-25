@@ -14,12 +14,6 @@
 #include <Adafruit_BME680.h>
 #include <weather_station.h>
 
-#define BME_SCK (18)
-#define BME_MISO (19)
-#define BME_MOSI (23)
-#define BME_CS (17)
-#define LED_PIN (12)
-
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
@@ -68,7 +62,7 @@ hal_setup_bme() {
  */
 float
 hal_get_temperature_bme() {
-  return bme680.readTemperature();
+    return bme680.readTemperature();
 }
 
 /**
@@ -93,23 +87,13 @@ hal_get_pressure_bme() {
 
 //returns gas sensor analog value in ohms
 uint32_t
-hal_get_gas_sensor()
-{
+hal_get_gas_sensor() {
     return bme680.readGas();
 }
 
 void
-reset_radio(int rstPin) {
-
-    digitalWrite(rstPin, LOW);
-    // 5 ms should be more than enough
-    delay(100);
-    digitalWrite(rstPin, HIGH);
-}
-
-void
 send_cmd(const String& str) {
-    Serial1.print(str + "\r\n");
+    Serial2.print(str + "\r\n");
 }
 
 // True on success, false on fail - quick & dirty
@@ -121,14 +105,15 @@ set_address(int address) {
     while (retry <= 3) {
         send_cmd("AT+ADDRESS=" + String(address));
         // Wait for response
-        while (rxAttempts <= 10) {
-            rx += Serial1.readString();
+        while (rxAttempts <= 5) {
+            rx += Serial2.readString();
             rx.trim();
             if (rx == "+OK") {
                 // Successfully configured
                 return true;
             }
-            delay(100);
+            Serial.println("Failed to get OK...");
+            delay(10);
             rxAttempts++;
         }
 
@@ -145,7 +130,7 @@ send_data(const int address, const String& data) {
 }
 
 void
-hal_set_led(bool ledState) {
+hal_set_stat_led(bool ledState) {
     digitalWrite(LED_PIN, ledState);
 }
 
@@ -173,15 +158,12 @@ ws_init() {
 
     hal_setup_digital();
 
-    hal_set_led(1);
+    hal_set_stat_led(1);
 
-    Wire.begin(21, 22, 5000);
-
-    Serial1.begin(115200);
+    Serial2.begin(115200);
 
     // Setup radio
-    reset_radio(13);
-    if (!set_address(0)) {
+    if (!set_address(RADIO_ADDR)) {
         return false;
     }
 
@@ -220,31 +202,17 @@ ws_get_pressure() {
 }
 
 float
-ws_get_gas_sensor(){
+ws_get_gas_sensor() {
     return hal_get_gas_sensor() / 1000.0f; //Convert to kOhms
 }
 
-bool
-ws_is_raining() {
-    if (hal_get_water_level() > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool
-ws_is_sunny() {
-    return hal_get_light_level() > 850;
-}
-
 int
-ws_raw_raining() {
+ws_get_analog_water() {
     return hal_get_water_level();
 }
 
 int
-ws_raw_light() {
+ws_get_analog_light() {
     return hal_get_light_level();
 }
 
@@ -255,7 +223,7 @@ ws_tx_data(int address, const String& data) {
 
 void
 ws_set_status_led(bool ledState) {
-    hal_set_led(ledState);
+    hal_set_stat_led(ledState);
 }
 
 void

@@ -6,8 +6,7 @@
 #include <Arduino.h>
 #include <weather_station.h>
 
-#define TX_INTERVAL_MS (1800000)
-// #define DEBUG
+#define DEBUG
 
 /* ========================================================================== */
 /*                        PRIVATE FUNCTION DECLARATIONS                       */
@@ -20,11 +19,6 @@
 /* ========================================================================== */
 /*                                MAIN PROGRAM                                */
 /* ========================================================================== */
-
-static float temp_c = 0.0f, humidity = 0.0f, pres_kpa = 0.0f, gas_kohms = 0.0f;
-bool isRaining = false, isSunny = false;
-
-static weather_data_t wd = {0};
 
 #ifdef DEBUG
 static long lastDebug = LONG_MAX;
@@ -41,13 +35,13 @@ setup() {
     delay(500);
 
     // ws_init also turns on status LED
-    if(!ws_init()) {
+    if (!ws_init()) {
         // Blink a couple times to notify user
         for (int i = 0; i < 3; ++i) {
             ws_set_status_led(false);
-            delay(1000);
+            delay(500);
             ws_set_status_led(true);
-            delay(1000);
+            delay(500);
         }
 
         Serial.println("BOOT RTRY");
@@ -59,7 +53,7 @@ setup() {
 
     Serial.println("BOOT OK");
 
-    // Turn off status LED after boot 
+    // Turn off status LED after boot
     // delay to make it clear this was the boot exiting
     ws_set_status_led(false);
     delay(1000);
@@ -67,20 +61,22 @@ setup() {
 
 void
 loop() {
+    static weather_data_t wd = {0};
+    float temp_c = 0.0f, humidity = 0.0f, pres_kpa = 0.0f, gas_kohms = 0.0f, an_wet = 0.0f, an_light = 0.0f;
+
     temp_c = ws_get_temperature();
-    isRaining = ws_is_raining();
+    an_wet = ws_get_analog_water();
     humidity = ws_get_humidity();
     pres_kpa = ws_get_pressure();
     gas_kohms = ws_get_gas_sensor();
-    isSunny = ws_is_sunny();
+    an_light = ws_get_analog_light();
 
     wd.temp_c = temp_c;
-    wd.isRaining = isRaining;
+    wd.wet_analog = an_wet;
     wd.humid = humidity;
     wd.pres_kpa = pres_kpa;
     wd.gas_kohms = gas_kohms;
-    wd.isSunny = isSunny;
-
+    wd.light_analog = an_light;
 
 #ifdef DEBUG
     if (millis() - lastDebug > 15000) {
@@ -91,10 +87,10 @@ loop() {
         // Print out some debug stuff
         Serial.println("[DEBUG] CURRENT VALUES: ");
         Serial.print("Water Level..........");
-        Serial.print(ws_raw_raining());
+        Serial.print(ws_get_analog_water());
         Serial.print("\n");
         Serial.print("Light Level..........");
-        Serial.print(ws_raw_light());
+        Serial.print(ws_get_analog_light());
         Serial.print("\n");
         Serial.print("Pressure Level.......");
         Serial.print(ws_get_pressure());
@@ -108,7 +104,6 @@ loop() {
         Serial.print("Gas Sensor...........");
         Serial.print(ws_get_gas_sensor());
         Serial.print("\n");
-        
 
         Serial.print("........................................\n");
 
@@ -118,19 +113,20 @@ loop() {
 
     if (millis() - lastTransmit > TX_INTERVAL_MS) {
 
-        String temp_c, humid, pres_kpa, isRaining, lightLevel, gas_kohms;
+        String temp_c, humid, pres_kpa, wet, light, gas_kohms;
         temp_c = String(wd.temp_c);
         humid = String(wd.humid);
         pres_kpa = String(wd.pres_kpa);
         gas_kohms = String(wd.gas_kohms);
-        isRaining = String(wd.isRaining);
-        lightLevel = String(wd.isSunny);
-        String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|G" + gas_kohms + "|R" + isRaining + "|L" + lightLevel;
+        wet = String(wd.wet_analog);
+        light = String(wd.light_analog);
+        String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|G" + gas_kohms + "|R" + wet + "|L" + light;
 
-        #ifdef DEBUG
-        Serial.println("Transmitting data...");
-        #endif
-        ws_tx_data(1, d);
+#ifdef DEBUG
+        Serial.print("Transmitting data: ");
+        Serial.println(d);
+#endif
+        ws_tx_data(2, d);
 
         ws_set_status_led(true);
         delay(30);
