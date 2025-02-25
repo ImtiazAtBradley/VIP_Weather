@@ -4,13 +4,9 @@ import bodyParser from "body-parser";
 import fs from "fs";
 import crypto from "crypto";
 
-// GLOBALS =====================================================================
+// DEFINITIONS =================================================================
 
 const JSON_CONTENT_TYPE = "application/json"
-const port = 27500
-const keysPath : string = "./api.keys"
-
-const app = express()
 
 // TYPES =======================================================================
 
@@ -27,7 +23,7 @@ type WeatherData = {
 
 async function getWeatherData(): Promise<WeatherData[]> {
     // TODO: Eventually, we may want to get data from stations with different IDs
-    const items = await redis.xrevrange("weather-station:0", "+", "-", "COUNT", 100)
+    const items = await redis.xrevrange("weather-station:0", "+", "-", "COUNT", 336)
 
     let weatherData: Array<WeatherData> = []
 
@@ -93,6 +89,10 @@ function loadKeys(path : string) : string[] | null
 
 // GLOBALS =====================================================================
 
+const app = express()
+const port = 27500
+const keysPath : string = "./api.keys"
+
 // API APP =====================================================================
 
 const redis = new Redis({
@@ -122,14 +122,12 @@ app.post('/api/envdata', async (req, res) => {
     let token = req.header("Authorization")
     if (token == undefined)
     {
-        console.log("Unauthorized user tried to access API")
+        console.log("User tried accessing without Authorization header")
         res.status(401).send()
         return
     }
 
     token = crypto.createHash("sha256").update(token).digest("hex")
-    console.log(`Got token of: ${token}`)
-
     let keyFound = false
     {
         loadKeys(keysPath).forEach((val, indx) => {
@@ -150,6 +148,8 @@ app.post('/api/envdata', async (req, res) => {
     console.log("user authenticated")
 
     // Process data
+    console.log(`Got data: ${JSON.stringify(req.body)}`)
+    
     let data = req.body
     let isWeatherRecord = isJsonWeatherRecord(data)
     let reason = "OK"
