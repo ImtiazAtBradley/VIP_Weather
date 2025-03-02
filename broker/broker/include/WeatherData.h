@@ -6,7 +6,7 @@ class WeatherData
    WeatherData(float temp_c = 0,
                float humid = 0,
                float pressure_kpa = 0,
-               int gasKOhms = 0,
+               float gasKOhms = 0,
                int anRaining = 0,
                int anLightLevel = 0)
        : m_temp_c(temp_c), m_humid(humid), m_pressure_kpa(pressure_kpa), m_gasKOhms(gasKOhms), m_anRaining(anRaining),
@@ -17,7 +17,7 @@ class WeatherData
    float m_temp_c;
    float m_humid;
    float m_pressure_kpa;
-   int m_gasKOhms;
+   float m_gasKOhms;
    int m_anRaining;
    int m_anLightLevel;
 

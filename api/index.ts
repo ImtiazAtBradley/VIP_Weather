@@ -11,7 +11,7 @@ const JSON_CONTENT_TYPE = "application/json"
 // TYPES =======================================================================
 
 type WeatherData = {
-    timestamp: string,
+    timestamp_unix_ms: string,
     temp_c: string,
     humid_prcnt: string,
     pressure_kpa: string,
@@ -29,8 +29,10 @@ async function getWeatherData(): Promise<WeatherData[]> {
     let weatherData: Array<WeatherData> = []
 
     for (var i = 0; i < items.length; i++) {
+	let tstamp = items[i][0]
+	tstamp = tstamp.slice(0, tstamp.lastIndexOf('-'))
         weatherData[i] = {
-            timestamp: items[i][0],
+            timestamp_unix_ms: tstamp,
             temp_c: items[i][1][1],
             humid_prcnt: items[i][1][3],
             pressure_kpa: items[i][1][5],
@@ -66,7 +68,7 @@ async function postWeatherData(weatherRecord: WeatherData): Promise<boolean> {
 
 function isJsonWeatherRecord(json : object) : boolean
 {
-    return json.hasOwnProperty('timestamp') 
+    return json.hasOwnProperty('timestamp_unix_ms') 
         && json.hasOwnProperty('temp_c') 
         && json.hasOwnProperty('humid_prcnt') 
         && json.hasOwnProperty('pressure_kpa') 

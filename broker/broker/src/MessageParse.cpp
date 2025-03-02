@@ -79,7 +79,7 @@ MessageParse::parseMessage(const std::string &radioMessage)
          }
          else if (key == "G")
          {
-            d.m_gasKOhms = std::stoi(value);
+            d.m_gasKOhms = std::stof(value);
          }
          else if (key == "R")
          {

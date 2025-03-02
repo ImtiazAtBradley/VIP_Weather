@@ -185,11 +185,11 @@ Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
    snprintf(jsonData,
             MAX_JSON_SIZE,
             "{"
-            "\"timestamp\":%ld,"
+            "\"timestamp_unix_ms\":%ld,"
             "\"temp_c\":%0.2f,"
             "\"humid_prcnt\":%0.2f,"
             "\"pressure_kpa\":%0.2f,"
-            "\"gas_kohms\":%d,"
+            "\"gas_kohms\":%0.2f,"
             "\"rain_an\":%d,"
             "\"light_an\":\"%d\""
             "}",
