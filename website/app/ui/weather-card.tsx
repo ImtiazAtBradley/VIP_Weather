@@ -3,10 +3,10 @@ import { HiMoon } from "react-icons/hi";
 
 function getLightString(lightAnalog: number): string {
     if (lightAnalog > 2000) {
-        return "Sunny"
+        return "SUNNY"
     }
 
-    return "Dark"
+    return "DARK"
 }
 
 export default function WeatherCard({ temp_f, humid, pressure_kpa, light_level }: { temp_f: number, humid: number, pressure_kpa: number, light_level: number }) {
