@@ -6,7 +6,7 @@
 #include <Arduino.h>
 #include <weather_station.h>
 
-#define DEBUG
+// #define DEBUG
 
 /* ========================================================================== */
 /*                        PRIVATE FUNCTION DECLARATIONS                       */

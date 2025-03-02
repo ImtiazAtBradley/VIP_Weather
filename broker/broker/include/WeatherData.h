@@ -1,29 +1,25 @@
 #pragma once
 
-enum LightLevel
-{
-   DARK = 0,
-   SUNNY = 1,
-};
-
 class WeatherData
 {
  public:
    WeatherData(float temp_c = 0,
                float humid = 0,
                float pressure_kpa = 0,
-               bool isRaining = 0,
-               LightLevel lightLevel = LightLevel::SUNNY)
-       : m_temp_c(temp_c), m_humid(humid), m_pressure_kpa(pressure_kpa), m_isRaining(isRaining),
-         m_lightLevel(lightLevel)
+               int gasKOhms = 0,
+               int anRaining = 0,
+               int anLightLevel = 0)
+       : m_temp_c(temp_c), m_humid(humid), m_pressure_kpa(pressure_kpa), m_gasKOhms(gasKOhms), m_anRaining(anRaining),
+         m_anLightLevel(anLightLevel)
    {
    }
 
    float m_temp_c;
    float m_humid;
    float m_pressure_kpa;
-   bool m_isRaining;
-   LightLevel m_lightLevel;
+   int m_gasKOhms;
+   int m_anRaining;
+   int m_anLightLevel;
 
  private:
 };

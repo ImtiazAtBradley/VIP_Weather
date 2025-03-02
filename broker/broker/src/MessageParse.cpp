@@ -77,13 +77,17 @@ MessageParse::parseMessage(const std::string &radioMessage)
          {
             d.m_pressure_kpa = std::stof(value);
          }
+         else if (key == "G")
+         {
+            d.m_gasKOhms = std::stoi(value);
+         }
          else if (key == "R")
          {
-            d.m_isRaining = s != "0";
+            d.m_anRaining = std::stoi(value);
          }
          else if (key == "L")
          {
-            d.m_lightLevel = LightLevel(std::stoi(value));
+            d.m_anLightLevel = std::stoi(value);
          }
       }
    }
