@@ -15,8 +15,9 @@ type WeatherData = {
     temp_c: string,
     humid_prcnt: string,
     pressure_kpa: string,
-    is_raining: string,
-    light_level: string,
+    gas_kohms: string,
+    rain_an: string,
+    light_an: string,
 };
 
 // LIB =========================================================================
@@ -33,8 +34,9 @@ async function getWeatherData(): Promise<WeatherData[]> {
             temp_c: items[i][1][1],
             humid_prcnt: items[i][1][3],
             pressure_kpa: items[i][1][5],
-            is_raining: items[i][1][7],
-            light_level: items[i][1][9],
+            gas_kohms: items[i][1][7], // TODO: Get this from data base somehow
+            rain_an: items[i][1][9],
+            light_an: items[i][1][11],
         }
     }
 
@@ -51,8 +53,9 @@ async function postWeatherData(weatherRecord: WeatherData): Promise<boolean> {
             "temp_c", `${weatherRecord.temp_c}`,
             "humid_prcnt", `${weatherRecord.humid_prcnt}`,
             "pressure_kpa", `${weatherRecord.pressure_kpa}`,
-            "is_raining", `${weatherRecord.is_raining}`,
-            "light_level", `${weatherRecord.light_level}`
+            "gas_kohms", `${weatherRecord.gas_kohms}`,
+            "rain_an", `${weatherRecord.rain_an}`,
+            "light_an", `${weatherRecord.light_an}`
         )
     } catch (error) {
         return false;
@@ -67,8 +70,9 @@ function isJsonWeatherRecord(json : object) : boolean
         && json.hasOwnProperty('temp_c') 
         && json.hasOwnProperty('humid_prcnt') 
         && json.hasOwnProperty('pressure_kpa') 
-        && json.hasOwnProperty('is_raining') 
-        && json.hasOwnProperty('light_level')
+        && json.hasOwnProperty('gas_kohms')
+        && json.hasOwnProperty('rain_an') 
+        && json.hasOwnProperty('light_an')
 }
 
 function loadKeys(path : string) : string[] | null
