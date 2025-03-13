@@ -2,10 +2,10 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 5050",
     "prettier": "prettier --write --ignore-unknown .",
     "prettier:check": "prettier --check --ignore-unknown .",
-    "start": "next start"
+    "start": "next start -p 5050"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",

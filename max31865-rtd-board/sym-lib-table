@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "TE-282834")(type "KiCad")(uri "${KIPRJMOD}/ThirdParty/TE-282834-4/282834-4.kicad_sym")(options "")(descr ""))
+  (lib (name "RT1206BRD07400RL")(type "KiCad")(uri "${KIPRJMOD}/ThirdParty/RT1206BRD07400RL/RT1206BRD07400RL.kicad_sym")(options "")(descr ""))
+)

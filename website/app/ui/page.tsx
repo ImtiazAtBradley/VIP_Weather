@@ -2,16 +2,6 @@ import WeatherStationLogo from "./ui/weather-station-logo";
 import EnvironmentLineGraph from "./ui/line-graph";
 import LoadFailedCard from "./ui/load-failed-card";
 import WeatherCard from "./ui/weather-card";
-import { DateTime } from "luxon";
-import { existsSync } from "fs"
-import MaintenanceCard from "./ui/maintenance-card";
-
-function checkMaitnenceFile() : boolean {
-  // Maintenance file will have the following path:
-  // Don't care about the content, just if it exists
-  let maintenancePath = "./under-maintenance.txt"
-  return existsSync(maintenancePath)
-}
 
 async function getEnvironmentData() {
 
@@ -32,39 +22,34 @@ async function getEnvironmentData() {
   // Return an array with relative times + temp/pres/humid data
 
   let time = []
-  let timestamp : string[]= []
+  let timestamp: string[] = []
   let temp_f = []
   let pressure_kpa = []
   let humidity_prcnt = []
   let light_level = []
-  let is_raining = []
   for (let i = 0; i < data.weatherData.length; i++) {
     let element = data.weatherData[i]
 
-    
-
     // Timestamp returned in <TIMESTAMP>-<SAMPLE> format - split into just timestamp (ms)
-    let nowUtc = DateTime.fromMillis(parseInt(element.timestamp.split("-")[0]))
-    let nowLocal = nowUtc.setZone("America/Chicago")
-    let hours = nowLocal.hour
+    let now = new Date(parseInt(element.timestamp.split("-")[0]))
+    let hours = now.getHours();
     let suffix = hours > 12 ? "PM" : "AM"
 
     // Set timestamp string
-    timestamp[i] = nowLocal.toLocaleString(DateTime.DATETIME_HUGE_WITH_SECONDS);
+    timestamp[i] = now.toString();
 
     // Convert to normal people time
     if (hours > 12) {
       hours = hours - 12;
     }
 
-    let graphTimeStr = nowLocal.toLocaleString(DateTime.TIME_SIMPLE);
+    let graphTimeStr = `${hours}:${now.getMinutes()} ${suffix}`
 
     time.push(graphTimeStr)
     temp_f.push(Math.round((element.temp_c * 9 / 5 + 32) * 10) / 10)
     pressure_kpa.push(element.pressure_kpa)
     humidity_prcnt.push(element.humid_prcnt)
     light_level.push(element.light_level)
-    is_raining.push(element.is_raining)
   }
 
   time = time.reverse()
@@ -72,10 +57,9 @@ async function getEnvironmentData() {
   pressure_kpa = pressure_kpa.reverse()
   humidity_prcnt = humidity_prcnt.reverse()
   light_level = light_level.reverse()
-  is_raining.reverse();
   timestamp = timestamp.reverse()
 
-  return { times: time, timestamps: timestamp, temp_f: temp_f, pressure_kpa: pressure_kpa, humidity_prcnt: humidity_prcnt, light_level: light_level, is_raining: is_raining }
+  return { times: time, timestamps: timestamp, temp_f: temp_f, pressure_kpa: pressure_kpa, humidity_prcnt: humidity_prcnt, light_level: light_level }
 }
 
 function Charts({ time, temperature, humidity, pressure, lightLevel }: { time: string[], temperature: number[], humidity: number[], pressure: number[], lightLevel: string[] }) {
@@ -100,23 +84,15 @@ function TheBeccWeatherStation() {
     <div className="flex-col justify-center">
       <h1 className="mt-10 md:text-5xl text-3xl text-center">The BECC Weather Station</h1>
       <div className="py-5 px-10 text-xl">
-        <p>The BECC (Business and Engineering Convergence Center) weather station is a student-built environmental measurement device that reports its current and past data through an API, which this website is using. The weather station is located at Bradley University, in or near the BECC building on the north side of Bradley University's campus. For more information, see our <a href="/about" className="hover:text-red-500 text-red-700">about</a> section, and also be sure to visit our repository on <a className="hover:text-red-500 text-red-700" href="https://github.com/ImtiazAtBradley/VIP_Weather" target="_blank">GitHub</a>. This station is extremely new, and data may be inaccurate until we get it tuned up, we appreciate your patience!  <br/><br/> <strong>For any questions, comments, or concerns please <a className="hover:text-red-500 text-red-700" href="/contact">Contact Us</a>.</strong></p>
+        <p>The BECC (Business and Engineering Convergence Center) weather station is a student-built environmental measurement device that reports its current and past data through an API, which this website is using. The weather station is located at Bradley University, in or near the BECC building on the north side of Bradley University's campus. For more information, see our <a href="/about" className="hover:text-red-500 text-red-700">about</a> section, and also be sure to visit our repository on <a className="hover:text-red-500 text-red-700" href="https://github.com/ImtiazAtBradley/VIP_Weather" target="_blank">GitHub</a>.</p>
+        <br/>
+        <p><strong>For any questions, comments, or concerns please <a className="hover:text-red-500 text-red-700" href="/contact">Contact Us</a>. Before using this service, please read our <a className="hover:text-red-500 text-red-700" href="/data-collection">data policy</a>.</strong></p>
       </div>
     </div>
   </>)
 }
 
 export default async function Page() {
-
-  // Check if the maintenance file is present, if so, show under maintenance screen
-  if (checkMaitnenceFile())
-  {
-    return (
-      <div className="flex justify-center">
-        <MaintenanceCard />
-      </div>
-    )
-  }
 
   const weatherData = await getEnvironmentData()
 
@@ -132,21 +108,20 @@ export default async function Page() {
   let currentPressure = weatherData.pressure_kpa.slice(-1)[0]
   let currentHumidity = weatherData.humidity_prcnt.slice(-1)[0]
   let currentLightLevel = weatherData.light_level.slice(-1)[0]
-  let currentIsRaining = weatherData.is_raining.slice(-1)[0]
   let lastUpdated = weatherData.timestamps.slice(-1)[0]
 
   return (
     <>
       <div className="mt-5" role="alert">
-        <div className="bg-green-500 text-white font-bold rounded-t px-4 py-2">
+        <div className="bg-orange-500 text-white font-bold rounded-t px-4 py-2">
           Info!
         </div>
-        <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-          <p>The BECC Weather Station is now deployed on the south side of the BECC building and is streaming real-time weather data!</p>
+        <div className="border border-t-0 border-orange-400 rounded-b bg-orange-100 px-4 py-3 text-orange-700">
+          <p>Please note that the data you are seeing is INSIDE data, from the BECC 4261 Controls Lab, where the weather station is currently located. This website will post an announcement when outside data is now being shown!</p>
         </div>
       </div>
       <div className="flex justify-center">
-        <WeatherCard temp_f={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} light_level={currentLightLevel} is_raining={currentIsRaining == "1"} />
+        <WeatherCard temp_f={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} light_level={currentLightLevel} />
       </div>
 
       {TheBeccWeatherStation()}
@@ -158,7 +133,7 @@ export default async function Page() {
       <div className="px-10">
         <p className="text-sm opacity-75">This data was last updated at: {lastUpdated}</p>
         <br></br>
-        <p>For more data, access our API, which you can find out more about in our <a href="https://litemage.github.io/vip-weather-docs/" className="text-red-700 hover:text-red-500">documentation</a>.</p>
+        <p>For more data, access our API, which you can find out more about in our <a href="/documentation" className="text-red-700 hover:text-red-500">documentation</a>.</p>
       </div>
     </>
   );
