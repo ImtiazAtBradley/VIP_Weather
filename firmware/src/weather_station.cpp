@@ -13,19 +13,24 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME680.h>
 #include <weather_station.h>
+#include "PwFusion_MAX31865.h"
 
-#define BME_SCK (18)
-#define BME_MISO (19)
-#define BME_MOSI (23)
-#define BME_CS (17)
-#define LED_PIN (12)
+#define SPI_SCK  (18)
+#define SPI_MISO (19)
+#define SPI_MOSI (23)
+#define BME_CS   (17)
+#define RTD_CS   (0) // TODO: Pin?
+#define LED_PIN  (12)
 
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
 
 // BME280
-Adafruit_BME680 bme680(BME_CS, BME_MOSI, BME_MISO, BME_SCK);
+Adafruit_BME680 bme680(BME_CS, SPI_MOSI, SPI_MISO, SPI_SCK);
+
+// RTD BOARD (MAX31865)
+MAX31865 rtd;
 
 /* ========================================================================== */
 /*                              PRIVATE FUNCTIONS                             */
@@ -61,14 +66,24 @@ hal_setup_bme() {
     return !rc;
 }
 
+bool
+hal_setup_rtd_board() {
+    // TODO: Verify
+    rtd.begin(RTD_CS, RTD_4_WIRE, RTD_TYPE_PT100);
+    return true;
+}
+
 /**
- * \brief Gets the temperature from hardware of the DHT11 sensor
- *
- * \return float Temperature,in degrees celsius.
+ * @brief Get temperature from MAX31865
+ * 
+ * @return float Temperature, in degrees C
  */
 float
-hal_get_temperature_bme() {
-  return bme680.readTemperature();
+hal_get_rtd_temp() {
+    // Read from register
+    rtd.sample();
+    // NOTE: Using linear approximation and not the Callendar–Van Dusen equation
+    return rtd.getTemperature();
 }
 
 /**
@@ -93,8 +108,7 @@ hal_get_pressure_bme() {
 
 //returns gas sensor analog value in ohms
 uint32_t
-hal_get_gas_sensor()
-{
+hal_get_gas_sensor() {
     return bme680.readGas();
 }
 
@@ -170,12 +184,13 @@ hal_set_led(bool ledState) {
  */
 bool
 ws_init() {
+    bool ret;
 
     hal_setup_digital();
 
     hal_set_led(1);
 
-    Wire.begin(21, 22, 5000);
+    SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
 
     Serial1.begin(115200);
 
@@ -185,7 +200,10 @@ ws_init() {
         return false;
     }
 
-    return hal_setup_bme();
+    ret |= hal_setup_rtd_board();
+    ret |= hal_setup_bme();
+
+    return ret;
 }
 
 /**
@@ -196,7 +214,7 @@ ws_init() {
 float
 ws_get_temperature() {
 
-    return hal_get_temperature_bme();
+    return hal_get_rtd_temp();
 }
 
 /**
@@ -220,7 +238,7 @@ ws_get_pressure() {
 }
 
 float
-ws_get_gas_sensor(){
+ws_get_gas_sensor() {
     return hal_get_gas_sensor() / 1000.0f; //Convert to kOhms
 }
 
