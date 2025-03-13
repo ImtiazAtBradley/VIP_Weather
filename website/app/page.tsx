@@ -1,4 +1,3 @@
-import WeatherStationLogo from "./ui/weather-station-logo";
 import EnvironmentLineGraph from "./ui/line-graph";
 import LoadFailedCard from "./ui/load-failed-card";
 import WeatherCard from "./ui/weather-card";
@@ -32,7 +31,6 @@ async function getEnvironmentData() {
   // Return an array with relative times + temp/pres/humid data
 
   let time = []
-  let timestamp: string[] = []
   let temp_f = []
   let pressure_kpa = []
   let humidity_prcnt = []
@@ -47,19 +45,8 @@ async function getEnvironmentData() {
     // Timestamp returned in <TIMESTAMP>-<SAMPLE> format - split into just timestamp (ms)
     let nowUtc = DateTime.fromMillis(parseInt(element.timestamp_unix_ms))
     let nowLocal = nowUtc.setZone("America/Chicago")
-    let hours = nowLocal.hour
 
-    // Set timestamp string
-    timestamp[i] = nowLocal.toLocaleString(DateTime.DATETIME_HUGE_WITH_SECONDS);
-
-    // Convert to normal people time
-    if (hours > 12) {
-      hours = hours - 12;
-    }
-
-    let graphTimeStr = nowLocal.toLocaleString(DateTime.TIME_SIMPLE)
-
-    time.push(graphTimeStr)
+    time.push(nowLocal.toISO())
     temp_f.push(Math.round((element.temp_c * 9 / 5 + 32) * 10) / 10)
     pressure_kpa.push(element.pressure_kpa)
     humidity_prcnt.push(element.humid_prcnt)
@@ -75,21 +62,20 @@ async function getEnvironmentData() {
   gas_kohms = gas_kohms.reverse()
   light_an = light_an.reverse()
   rain_an = rain_an.reverse()
-  timestamp = timestamp.reverse()
 
-  return { times: time, timestamps: timestamp, temp_f: temp_f, pressure_kpa: pressure_kpa, humidity_prcnt: humidity_prcnt, gas_an: gas_kohms, light_an: light_an, rain_an: rain_an }
+  return { times: time, temp_f: temp_f, pressure_kpa: pressure_kpa, humidity_prcnt: humidity_prcnt, gas_an: gas_kohms, light_an: light_an, rain_an: rain_an }
 }
 
-function Charts({ time, temperature, humidity, pressure, gas, lightLevel, rain }: { time: string[], temperature: number[], humidity: number[], pressure: number[], gas: number[], lightLevel: number[], rain: number[] }) {
+function Charts({ time, temperature, humidity, pressure, gas, lightLevel, rain }: { time: (string | null)[], temperature: number[], humidity: number[], pressure: number[], gas: number[], lightLevel: number[], rain: number[] }) {
 
   return (
-    <div className="grid md:grid-cols-2 grid-cols-1 mt-3 p-4">
+    <div className="grid grid-cols-1 mt-3 p-4">
       <EnvironmentLineGraph xlabels={time} label="°F" title="Temperature" color="rgb(255, 0, 0)" backgroundColor="rgba(255, 0, 0, 0.5" d={temperature} />
       <EnvironmentLineGraph xlabels={time} label="% Relative" title="Humidity" color="rgb(0, 255, 0)" backgroundColor="rgba(0, 255, 0, 0.5)" d={humidity} />
       <EnvironmentLineGraph xlabels={time} label="kPa" title="Pressure" color="rgb(0, 0, 255)" backgroundColor="rgba(0, 0, 255, 0.5)" d={pressure} />
-      <EnvironmentLineGraph xlabels={time} label="kOhms" title="Gas Sensor (kOhms)" color="rgb(128, 255, 0)" backgroundColor="rgba(0, 255, 0, 0.5)" d={gas} />
+      <EnvironmentLineGraph xlabels={time} label="kOhms" title="Gas Sensor (kOhms)" color="rgb(150, 80, 240)" backgroundColor="rgba(150, 80, 240, 0.5)" d={gas} />
       <EnvironmentLineGraph xlabels={time} label="Analog" title="Light Intensity" color="rgb(0, 255, 255)" backgroundColor="rgba(0, 255, 255, 0.5)" d={lightLevel} />
-      <EnvironmentLineGraph xlabels={time} label="Analog" title="Rain Sensor" color="rgb(0, 255, 128)" backgroundColor="rgba(0, 255, 255, 0.5)" d={rain} />
+      <EnvironmentLineGraph xlabels={time} label="Analog" title="Rain Sensor" color="rgb(250, 185, 80)" backgroundColor="rgba(250, 185, 80, 0.5)" d={rain} />
     </div>
   )
 }
@@ -118,7 +104,7 @@ export default async function Page() {
 
   const weatherData = await getEnvironmentData()
 
-  if (weatherData == null || weatherData.timestamps.length <= 0) {
+  if (weatherData == null || weatherData.times.length <= 0) {
     return (
       <div className="flex justify-center">
         <LoadFailedCard />
@@ -130,7 +116,7 @@ export default async function Page() {
   let currentPressure = weatherData.pressure_kpa.slice(-1)[0]
   let currentHumidity = weatherData.humidity_prcnt.slice(-1)[0]
   let currentLightLevel = weatherData.light_an.slice(-1)[0]
-  let lastUpdated = weatherData.timestamps.slice(-1)[0]
+  let lastUpdated = weatherData.times.slice(-1)[0]
 
   return (
     <>
