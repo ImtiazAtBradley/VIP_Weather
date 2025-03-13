@@ -10,21 +10,25 @@ import {
     Title,
     Tooltip,
     Legend,
-    scales,
+    TimeScale,
 } from 'chart.js';
+import 'chartjs-adapter-luxon'
 import { Line } from 'react-chartjs-2';
+import { DateTime } from 'luxon';
 
 ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
+    TimeScale,
     Title,
     Tooltip,
     Legend
 );
 
-export default function EnvironmentLineGraph({ xlabels, label, title, color, backgroundColor, d}: { xlabels: string[], label: string, title: string, color: string, backgroundColor: string, d: any}) {
+export default function EnvironmentLineGraph({ xlabels, label, title, color, backgroundColor, d }: { xlabels: (string | null)[], label: string, title: string, color: string, backgroundColor: string, d: any }) {
+
     let data = {
         labels: xlabels,
         datasets: [
@@ -33,11 +37,24 @@ export default function EnvironmentLineGraph({ xlabels, label, title, color, bac
                 data: d,
                 borderColor: color,
                 backgroundColor: backgroundColor,
+                stepped: true,
             }
         ]
     }
 
     let options: any = {
+        scales: {
+            x: {
+                type: 'time',
+                time: {
+                    unit: 'minute',
+                    unitStepSize: 1,
+                    displayFormats: {
+                        'minute': 'hh:mm a'
+                    }
+                },
+            }
+        },
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
