@@ -1,4 +1,4 @@
-import WeatherStationLogo from "./ui/weather-station-logo";
+import WeatherStationLogo from "./ui/weather-station-nav";
 import EnvironmentLineGraph from "./ui/line-graph";
 import LoadFailedCard from "./ui/load-failed-card";
 import WeatherCard from "./ui/weather-card";
@@ -138,11 +138,19 @@ export default async function Page() {
   return (
     <>
       <div className="mt-5" role="alert">
+        <div className="bg-orange-500 text-white font-bold rounded-t px-4 py-2">
+          Weather Station Data Reliablility
+        </div>
+        <div className="border border-t-0 border-orange-400 rounded-b bg-orange-100 px-4 py-3 text-orange-700">
+          <p>The BECC Weather Station is deployed in a sub-optimal location and is reporting temperatures hotter than ambient in the presence of high solar intensity.</p>
+        </div>
+      </div>
+      <div className="mt-5" role="alert">
         <div className="bg-green-500 text-white font-bold rounded-t px-4 py-2">
-          Info!
+          News!
         </div>
         <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-          <p>The BECC Weather Station is now deployed on the south side of the BECC building and is streaming real-time weather data!</p>
+          <p>We've made some improvments around the site, including a <a className="hover:underline text-red-700" href="/news">news</a> page where we can more effectively communicate with users!</p>
         </div>
       </div>
       <div className="flex justify-center">
