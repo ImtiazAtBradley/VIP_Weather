@@ -46,7 +46,7 @@ export default function Page()
             <div className="flex flex-col py-10 xl:mx-auto xl:w-1/2">
                 <h1 className="text-6xl text-slate-700 font-bold">BU Weather Station News</h1>
                 <p className="text-xl">
-                    News about the BU Weather Station and it's attached services, strait from the development team.
+                    News about the BU Weather Station and it's attached services, straight from the development team.
                 </p>
                 <hr className="mt-5" />
 

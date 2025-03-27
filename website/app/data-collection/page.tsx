@@ -24,7 +24,7 @@ export default function Page()
                     <li>Pressure immediately inside the box.</li>
                     <li>Light level immediately inside the box.</li>
                     <li>Whether or not there is water on top of the box, present on the sensor.</li>
-                    <li>IP Adress (part of log on website, all servers, collect this information) & related information, like browser, hostname, ect. If the user provides it through the HTTP(S) protocols(s)</li>
+                    <li>IP address (part of log on website, all servers, collect this information) & related information, like browser, hostname, ect. If the user provides it through the HTTP(S) protocols(s)</li>
                 </ul>
             </div>
             <div className="p-5 px-10 text-xl">

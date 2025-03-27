@@ -58,7 +58,7 @@ export default function MaintenanceCard() {
             </p>
             <h1 className="text-2xl font-semibold">Is data still being collected?</h1>
             <p className="text-xl py-5">
-                Typically no, and if data <i>is</i> still being collected and available through the api, then it should
+                Typically no, and if data <i>is</i> still being collected and available through the API, then it should
                 not be trusted. We are actively working on a more streamlined solution for the API for cases like this.
             </p>
             <h1 className="text-2xl font-semibold">Is the API still available?</h1>
