@@ -10,14 +10,6 @@
 // #define DEBUG
 
 /* ========================================================================== */
-/*                        PRIVATE FUNCTION DECLARATIONS                       */
-/* ========================================================================== */
-
-/* ========================================================================== */
-/*                              STATIC VARIABLES                              */
-/* ========================================================================== */
-
-/* ========================================================================== */
 /*                                MAIN PROGRAM                                */
 /* ========================================================================== */
 
@@ -51,7 +43,7 @@ setup() {
         }
 
         Serial.println("BOOT RTRY");
-        // Wait before soft restart
+        // Wait before soft restart so user can see above message
         delay(1000);
         // Perform a soft restart
         ws_reset_controller();
@@ -83,7 +75,7 @@ loop() {
 
 
 #ifdef DEBUG
-    if (millis() - lastDebug > 15000) {
+    if (millis() - lastDebug > 1000) {
         // Blink to indicate it's not dead
         ws_set_status_led(true);
         delay(20);
@@ -96,14 +88,14 @@ loop() {
         Serial.print("Light Level..........");
         Serial.print(ws_raw_light());
         Serial.print("\n");
+        Serial.print("Temperature..........");
+        Serial.print(ws_get_temperature());
+        Serial.print("\n");
         Serial.print("Pressure Level.......");
         Serial.print(ws_get_pressure());
         Serial.print("\n");
         Serial.print("Humidity Level.......");
         Serial.print(ws_get_humidity());
-        Serial.print("\n");
-        Serial.print("Temperature..........");
-        Serial.print(ws_get_temperature());
         Serial.print("\n");
         Serial.print("Gas Sensor...........");
         Serial.print(ws_get_gas_sensor());
@@ -139,7 +131,7 @@ loop() {
         lastTransmit = millis();
     }
 
-    delay(15);
+    delay(250);
 }
 
 /* ========================================================================== */

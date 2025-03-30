@@ -18,16 +18,19 @@
 #define SPI_SCK  (18)
 #define SPI_MISO (19)
 #define SPI_MOSI (23)
-#define BME_CS   (17)
-#define RTD_CS   (0) // TODO: Pin?
+#define RTD_CS   (22)
+#define BME_CS   (5)
 #define LED_PIN  (12)
+#define RADIO_RST (13)
+#define LIGHT_PIN (32)
+#define WATER_PIN (35)
 
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
 
 // BME280
-Adafruit_BME680 bme680(BME_CS, SPI_MOSI, SPI_MISO, SPI_SCK);
+Adafruit_BME680 bme680(BME_CS, &SPI);
 
 // RTD BOARD (MAX31865)
 MAX31865 rtd;
@@ -45,11 +48,13 @@ hal_get_light_level() {
 int
 hal_get_water_level() {
     //waterPin = 33 max: ?,    min: 0
-    return analogRead(33);
+    return analogRead(WATER_PIN);
 }
 
 void
 hal_setup_digital() {
+    pinMode(BME_CS, OUTPUT);
+    pinMode(RTD_CS, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
 }
 
@@ -68,7 +73,6 @@ hal_setup_bme() {
 
 bool
 hal_setup_rtd_board() {
-    // TODO: Verify
     rtd.begin(RTD_CS, RTD_4_WIRE, RTD_TYPE_PT100);
     return true;
 }
@@ -116,14 +120,14 @@ void
 reset_radio(int rstPin) {
 
     digitalWrite(rstPin, LOW);
-    // 5 ms should be more than enough
+    // 100 ms as per datasheet + a little
     delay(100);
     digitalWrite(rstPin, HIGH);
 }
 
 void
 send_cmd(const String& str) {
-    Serial1.print(str + "\r\n");
+    Serial2.print(str + "\r\n");
 }
 
 // True on success, false on fail - quick & dirty
@@ -132,24 +136,22 @@ set_address(int address) {
     int retry = 0;
     int rxAttempts = 0;
     String rx;
-    while (retry <= 3) {
-        send_cmd("AT+ADDRESS=" + String(address));
-        // Wait for response
-        while (rxAttempts <= 10) {
-            rx += Serial1.readString();
-            rx.trim();
-            if (rx == "+OK") {
-                // Successfully configured
-                return true;
-            }
-            delay(100);
-            rxAttempts++;
-        }
 
-        retry++;
+    send_cmd("AT+ADDRESS=" + String(address));
+    // Wait before reading
+    delay(1000);
+
+    rx = Serial2.readString();
+    rx.trim();
+
+    while (rx != "+OK")
+    {
+        send_cmd("AT+ADDRESS=" + String(address));
+        delay(1000);
+        rx = Serial2.readString();
     }
 
-    return false;
+    return true;
 }
 
 void
@@ -184,7 +186,7 @@ hal_set_led(bool ledState) {
  */
 bool
 ws_init() {
-    bool ret;
+    bool ret = true;
 
     hal_setup_digital();
 
@@ -192,13 +194,11 @@ ws_init() {
 
     SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
 
-    Serial1.begin(115200);
+    Serial2.begin(115200);
 
     // Setup radio
-    reset_radio(13);
-    if (!set_address(0)) {
-        return false;
-    }
+    reset_radio(RADIO_RST);
+    ret |= set_address(0);
 
     ret |= hal_setup_rtd_board();
     ret |= hal_setup_bme();
