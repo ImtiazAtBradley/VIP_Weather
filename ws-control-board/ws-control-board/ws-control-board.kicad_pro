@@ -133,10 +133,10 @@
         "min_resolved_spokes": 2,
         "min_silk_clearance": 0.0,
         "min_text_height": 0.8,
-        "min_text_thickness": 0.127,
+        "min_text_thickness": 0.15,
         "min_through_hole_diameter": 0.254,
         "min_track_width": 0.1524,
-        "min_via_annular_width": 0.127,
+        "min_via_annular_width": 0.15,
         "min_via_diameter": 0.508,
         "solder_mask_to_copper_clearance": 0.0,
         "use_height_for_length_calcs": true
@@ -503,7 +503,7 @@
       "plot": "fab/R00/",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "",
+      "step": "../../../../../Desktop/Stuff/ws-control-board.step",
       "svg": "",
       "vrml": ""
     },

@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "9.0.0"
     },
-    "CreationDate": "2025-03-28T21:12:20-05:00"
+    "CreationDate": "2025-03-29T18:07:34-05:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -27,7 +27,7 @@
       "PadToPad": 0.127,
       "PadToTrack": 0.127,
       "TrackToTrack": 0.2,
-      "MinLineWidth": 0.2,
+      "MinLineWidth": 0.381,
       "TrackToRegion": 0.5,
       "RegionToRegion": 0.5
     }

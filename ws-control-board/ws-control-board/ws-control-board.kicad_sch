@@ -2528,131 +2528,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "power:VDD"
-			(power)
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "#PWR"
-				(at 0 -3.81 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Value" "VDD"
-				(at 0 3.556 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Power symbol creates a global label with name \"VDD\""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "global power"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "VDD_0_1"
-				(polyline
-					(pts
-						(xy -0.762 1.27) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 2.54) (xy 0.762 1.27)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(polyline
-					(pts
-						(xy 0 0) (xy 0 2.54)
-					)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-			)
-			(symbol "VDD_1_1"
-				(pin power_in line
-					(at 0 0 90)
-					(length 0)
-					(name "~"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 	)
 	(rectangle
 		(start 180.34 63.5)
@@ -2938,7 +2813,7 @@
 		)
 		(uuid "f7b09fbf-1988-4400-89ff-0ca4424ab3bc")
 	)
-	(text_box "Bradley University ECE Department SPR 2025 ECE 398\nWeather Station Group\n\nCarrier board for off-the-shelf breakout boards which will be used \ninside of the weather staiton enclosure. This includes the microcontroller\nand all necessary peripherals to operate the weather station.\n\nIn the future, this board should just include all necessary components\nrather than breakout boards. \n\nTODO: \n- [ ] Check that board is mechanically\n          spaced properly (all boards contained in silk,\n          pins properly seperated, we have connectors for .1in\n          pitch footprint, a terminal block will fit)\n- [ ] Pinout is correct when plugged into board\n- [ ] Spacing of ESP header is correct\n- [ ] Sunny buddy would work with this\n\nLast Revision: Jacob Simeone 2025-03-28"
+	(text_box "Bradley University ECE Department SPR 2025 ECE 398\nWeather Station Group\n\nCarrier board for off-the-shelf breakout boards which will be used \ninside of the weather staiton enclosure. This includes the microcontroller\nand all necessary peripherals to operate the weather station.\n\nIn the future, this board should just include all necessary components\nrather than breakout boards. \n\nTODO: \n- [X] Check that board is mechanically\n          spaced properly (all boards contained in silk,\n          pins properly seperated, we have connectors for .1in\n          pitch footprint, a terminal block will fit)\n- [X] Pinout is correct when plugged into board\n- [X] Spacing of ESP header is correct\n- [ ] Break out unused controller connections\n- [ ] Silkscreen writing on stat codes\n- [ ] Sunny buddy would work with this\n\nLast Revision: Jacob Simeone 2025-03-28"
 		(exclude_from_sim no)
 		(at 16.51 19.05 0)
 		(size 78.74 80.01)
@@ -2965,24 +2840,84 @@
 		(uuid "e44820dd-9bfb-45e3-92b4-5648f7699970")
 	)
 	(no_connect
+		(at 224.79 73.66)
+		(uuid "0805c6ff-8f90-42e4-abd1-03bb9c6438a3")
+	)
+	(no_connect
 		(at 121.92 78.74)
 		(uuid "10525e74-d823-4b5b-875a-2b6749dc093f")
+	)
+	(no_connect
+		(at 224.79 83.82)
+		(uuid "2dc1181f-3142-438d-8090-959bcf7812c3")
 	)
 	(no_connect
 		(at 251.46 33.02)
 		(uuid "3020dd40-54f0-4a01-a14f-90de3775e3e8")
 	)
 	(no_connect
+		(at 257.81 99.06)
+		(uuid "334cc688-060a-4b26-8502-ba89e1d3926e")
+	)
+	(no_connect
+		(at 257.81 93.98)
+		(uuid "338a3424-3842-44a7-b094-7c8626f5f2c1")
+	)
+	(no_connect
+		(at 224.79 76.2)
+		(uuid "364f1abe-be93-4e27-92ed-649a1ce9457e")
+	)
+	(no_connect
+		(at 224.79 86.36)
+		(uuid "3bf9e84b-9523-46cc-b85e-baecfd273fc2")
+	)
+	(no_connect
+		(at 224.79 91.44)
+		(uuid "5c2b88b0-a914-441e-8078-c22013f89df7")
+	)
+	(no_connect
+		(at 224.79 99.06)
+		(uuid "5ce4a055-5f5b-42c5-9f57-1b6cb25b8573")
+	)
+	(no_connect
+		(at 224.79 93.98)
+		(uuid "7e752da1-e3cf-4767-8f8e-5b2ac46f8d05")
+	)
+	(no_connect
 		(at 257.81 73.66)
 		(uuid "9d5f319c-8896-4638-bc39-3fdb126ec0a9")
+	)
+	(no_connect
+		(at 224.79 68.58)
+		(uuid "a2d51ea6-0b80-491d-a37e-186ad9171873")
+	)
+	(no_connect
+		(at 224.79 104.14)
+		(uuid "a9acb0f9-a724-4587-81d2-2e81fcec5a63")
+	)
+	(no_connect
+		(at 224.79 88.9)
+		(uuid "ada5eea2-5806-4d80-b15a-11d43d00885a")
 	)
 	(no_connect
 		(at 257.81 76.2)
 		(uuid "d95bb80e-9b97-473a-844f-4ec1b0014ad2")
 	)
 	(no_connect
+		(at 224.79 71.12)
+		(uuid "e9e76f86-0e23-43ee-8a10-741a3e01e4bf")
+	)
+	(no_connect
+		(at 257.81 78.74)
+		(uuid "fbd89b35-0892-458f-b05e-14ff76240e31")
+	)
+	(no_connect
 		(at 251.46 40.64)
 		(uuid "fc93ece8-c15f-44ab-b9dd-7287618915e9")
+	)
+	(no_connect
+		(at 257.81 96.52)
+		(uuid "fe8c8464-032b-4801-9241-31395b6076e9")
 	)
 	(wire
 		(pts
@@ -3016,7 +2951,7 @@
 	)
 	(wire
 		(pts
-			(xy 218.44 93.98) (xy 224.79 93.98)
+			(xy 218.44 81.28) (xy 224.79 81.28)
 		)
 		(stroke
 			(width 0)
@@ -3083,16 +3018,6 @@
 			(type default)
 		)
 		(uuid "30687de4-b8bc-40e6-bba1-ed9f15811d43")
-	)
-	(wire
-		(pts
-			(xy 207.01 104.14) (xy 207.01 102.87)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "373a5fd3-5f99-4bcb-94c2-2c35a2b96299")
 	)
 	(wire
 		(pts
@@ -3566,16 +3491,6 @@
 	)
 	(wire
 		(pts
-			(xy 224.79 104.14) (xy 207.01 104.14)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ebae3590-59d7-4634-b727-9dba42815f49")
-	)
-	(wire
-		(pts
 			(xy 121.92 83.82) (xy 116.84 83.82)
 		)
 		(stroke
@@ -3765,7 +3680,7 @@
 		(uuid "b6730767-777b-4f80-a7b8-c6305daf4fc2")
 	)
 	(label "PHOTO_SENS"
-		(at 218.44 93.98 180)
+		(at 218.44 81.28 180)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -4042,72 +3957,6 @@
 			(project ""
 				(path "/76b5f725-792b-4832-8607-f92582a36140"
 					(reference "#PWR03")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:+3.3V")
-		(at 191.77 71.12 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "20571a2b-edbc-42d6-889f-dc3c29993093")
-		(property "Reference" "#PWR017"
-			(at 191.77 74.93 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VIN"
-			(at 191.77 66.04 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 191.77 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 191.77 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
-			(at 191.77 71.12 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "32a5c7c3-94b0-4d46-bdc9-b11301e21883")
-		)
-		(instances
-			(project "ws-control-board"
-				(path "/76b5f725-792b-4832-8607-f92582a36140"
-					(reference "#PWR017")
 					(unit 1)
 				)
 			)
@@ -4491,71 +4340,6 @@
 			(project "ws-control-board"
 				(path "/76b5f725-792b-4832-8607-f92582a36140"
 					(reference "#PWR010")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:VDD")
-		(at 207.01 102.87 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "59cd406d-d1ab-4099-9b4c-a7cad217e317")
-		(property "Reference" "#PWR014"
-			(at 207.01 106.68 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "VIN"
-			(at 207.01 99.06 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 207.01 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 207.01 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"VDD\""
-			(at 207.01 102.87 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "d3bd6712-a8cd-4ade-a124-0e37b8b610f5")
-		)
-		(instances
-			(project ""
-				(path "/76b5f725-792b-4832-8607-f92582a36140"
-					(reference "#PWR014")
 					(unit 1)
 				)
 			)
@@ -5347,6 +5131,72 @@
 			(project ""
 				(path "/76b5f725-792b-4832-8607-f92582a36140"
 					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+3.3V")
+		(at 191.77 71.12 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "9d2b8eb6-fb86-40cd-abff-42192d2382f9")
+		(property "Reference" "#PWR014"
+			(at 191.77 74.93 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+3.3V"
+			(at 191.77 66.04 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 191.77 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 191.77 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+3.3V\""
+			(at 191.77 71.12 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "afe6e394-9390-47b5-a5a6-3860e377af53")
+		)
+		(instances
+			(project "ws-control-board"
+				(path "/76b5f725-792b-4832-8607-f92582a36140"
+					(reference "#PWR014")
 					(unit 1)
 				)
 			)
