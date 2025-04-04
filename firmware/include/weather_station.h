@@ -4,6 +4,16 @@
 #include <Arduino.h>
 #include <stdbool.h>
 
+// CONFIGURATION
+
+#define BME_SCK        (18)
+#define BME_MISO       (19)
+#define BME_MOSI       (23)
+#define BME_CS         (5)
+#define LED_PIN        (12)
+#define RADIO_ADDR     (3)
+#define TX_INTERVAL_MS (5000)
+
 /**
  * @brief Data structure to hold all of our weather station data
  * 
@@ -13,12 +23,12 @@
  * 
  */
 typedef struct {
-    float temp_c;
-    float pres_kpa;
-    float humid;
-    float gas_kohms;
-    bool isRaining;
-    bool isSunny;
+    float temp_c;       ///> Temperature measured by temperature sensor, in degrees C
+    float pres_kpa;     ///> Pressure measured in kilo-Pascals
+    float humid;        ///> Humidity, measured as % relative
+    float gas_kohms;    ///> TODO
+    float wet_analog;   ///> Analog value of water level sensor. Use to determine if moisture is present on sensor
+    float light_analog; ///> Analog value of photo resistor connected to system. Use to determine light intensity
 } weather_data_t;
 
 /**
@@ -51,30 +61,14 @@ float ws_get_humidity();
 float ws_get_pressure();
 
 float ws_get_gas_sensor();
- 
-/**
- * @brief Check if it is currently raining
- * 
- * @return true -> Currently raining
- * @return false -> Not currently raining
- */
-bool ws_is_raining();
 
-/**
- * @brief Check if it is currently sunny out
- * 
- * @return true -> Currently sunny
- * @return false -> Not currently sunny
- */
-bool ws_is_sunny();
+int ws_get_analog_water();
+
+int ws_get_analog_light();
 
 void ws_tx_data(int address, const String& data);
 
 void ws_set_status_led(bool ledState);
-
-int ws_raw_raining();
-
-int ws_raw_light();
 
 /**
  * @brief Shall soft reset the controller operating the weather station

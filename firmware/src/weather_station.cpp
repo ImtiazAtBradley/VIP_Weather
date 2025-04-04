@@ -161,7 +161,7 @@ send_data(const int address, const String& data) {
 }
 
 void
-hal_set_led(bool ledState) {
+hal_set_stat_led(bool ledState) {
     digitalWrite(LED_PIN, ledState);
 }
 
@@ -190,7 +190,7 @@ ws_init() {
 
     hal_setup_digital();
 
-    hal_set_led(1);
+    hal_set_stat_led(1);
 
     SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
 
@@ -242,27 +242,13 @@ ws_get_gas_sensor() {
     return hal_get_gas_sensor() / 1000.0f; //Convert to kOhms
 }
 
-bool
-ws_is_raining() {
-    if (hal_get_water_level() > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool
-ws_is_sunny() {
-    return hal_get_light_level() > 850;
-}
-
 int
-ws_raw_raining() {
+ws_get_analog_water() {
     return hal_get_water_level();
 }
 
 int
-ws_raw_light() {
+ws_get_analog_light() {
     return hal_get_light_level();
 }
 
@@ -273,7 +259,7 @@ ws_tx_data(int address, const String& data) {
 
 void
 ws_set_status_led(bool ledState) {
-    hal_set_led(ledState);
+    hal_set_stat_led(ledState);
 }
 
 void
