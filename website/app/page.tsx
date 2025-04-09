@@ -5,6 +5,7 @@ import WeatherCard from "./ui/weather-card";
 import { DateTime } from "luxon";
 import { existsSync } from "fs"
 import MaintenanceCard from "./ui/maintenance-card";
+import { GetNWSData } from "./lib/fetch-nws";
 
 function checkMaitnenceFile(): boolean {
   // Maintenance file will have the following path:
@@ -18,7 +19,7 @@ async function getEnvironmentData() {
   let res = null;
 
   try {
-    res = await fetch("http://localhost:27500/api/envdata", { cache: "no-store" })
+    res = await fetch("http://weather.jacobsimeone.net/api/envdata", { cache: "no-store" })
   } catch (error) {
     return null
   }
@@ -94,11 +95,13 @@ function TheBeccWeatherStation() {
 
 export default async function Page() {
 
+  let nwsData = await GetNWSData();
+
   // Check if the maintenance file is present, if so, show under maintenance screen
   if (checkMaitnenceFile()) {
     return (
       <div className="flex justify-center">
-        <MaintenanceCard />
+        <MaintenanceCard nwsData={nwsData}/>
       </div>
     )
   }

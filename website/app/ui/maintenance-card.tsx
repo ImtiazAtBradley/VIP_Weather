@@ -1,5 +1,7 @@
 import { FaScrewdriverWrench } from "react-icons/fa6";
 import { readFileSync, existsSync } from "fs";
+import { NWSData } from "../lib/fetch-nws";
+import NWSWeatherCard from "../ui/nws-weather-card"
 
 const maintenanceLogPath = "./maintenance.log"
 
@@ -38,11 +40,19 @@ function MaintenanceLogCard() {
     )
 }
 
-export default function MaintenanceCard() {
+export default function MaintenanceCard({nwsData} : {nwsData: NWSData | null}) {
     return (
     <div className="mt-3 mb-3 p-10 xl:w-1/2">
         <div className="flex flex-col items-center">
-            <span className="flex text-6xl font-semibold text-slate-600">Weather Station is Currently Undergoing Maintenance</span>
+            {
+                
+                (nwsData != null) && 
+                <div className="flex flex-col justify-center">
+                    <span className="flex text-center text-4xl font-semibold text-slate-600">Weather from NWS for Peoria, IL:</span>
+                    <NWSWeatherCard nwsData={nwsData} />
+                </div> 
+            }
+            <span className="flex text-4xl font-semibold text-slate-600">Weather Station is Currently Undergoing Maintenance</span>
             <FaScrewdriverWrench className="text-slate-800 w-36 h-36 my-10" />
         </div>
         <div className="flex flex-col">
