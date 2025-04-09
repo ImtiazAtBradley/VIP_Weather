@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "TE-282834-4")(type "KiCad")(uri "${KIPRJMOD}/TE-282834-4")(options "")(descr "TE Connectivity Terminal Blocks"))
+)
