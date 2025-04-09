@@ -37,7 +37,7 @@ export default function EnvironmentLineGraph({ xlabels, label, title, color, bac
                 data: d,
                 borderColor: color,
                 backgroundColor: backgroundColor,
-                stepped: true,
+                stepped: false,
             }
         ]
     }
