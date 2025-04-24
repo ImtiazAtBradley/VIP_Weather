@@ -79,22 +79,22 @@ loop() {
         // Print out some debug stuff
         Serial.println("[DEBUG] CURRENT VALUES: ");
         Serial.print("Water Level..........");
-        Serial.print(ws_get_analog_water());
+        Serial.print(wd.wet_analog);
         Serial.print("\n");
         Serial.print("Light Level..........");
-        Serial.print(ws_get_analog_light());
+        Serial.print(wd.light_analog);
         Serial.print("\n");
         Serial.print("Temperature..........");
-        Serial.print(ws_get_temperature());
+        Serial.print(wd.temp_c);
         Serial.print("\n");
         Serial.print("Pressure Level.......");
-        Serial.print(ws_get_pressure());
+        Serial.print(wd.pres_kpa);
         Serial.print("\n");
         Serial.print("Humidity Level.......");
-        Serial.print(ws_get_humidity());
+        Serial.print(wd.humid);
         Serial.print("\n");
         Serial.print("Gas Sensor...........");
-        Serial.print(ws_get_gas_sensor());
+        Serial.print(wd.gas_kohms);
         Serial.print("\n");
 
         Serial.print("........................................\n");
@@ -115,10 +115,11 @@ loop() {
         String d = "T" + temp_c + "|H" + humid + "|P" + pres_kpa + "|G" + gas_kohms + "|R" + wet + "|L" + light;
 
 #ifdef DEBUG
-        Serial.print("Transmitting data: ");
+        Serial.print("Would transmit data: ");
         Serial.println(d);
-#endif
+#else
         ws_tx_data(2, d);
+#endif
 
         ws_set_status_led(true);
         delay(30);

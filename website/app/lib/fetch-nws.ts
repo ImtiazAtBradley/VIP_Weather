@@ -13,7 +13,7 @@ async function GetNWSData() : Promise<NWSData | null> {
 
     // Attempt to fetch data from NWS
     try {
-        res = await fetch("https://api.weather.gov/stations/KPIA/observations/latest", { headers });
+        res = await fetch("https://api.weather.gov/stations/KPIA/observations/latest", { headers, cache: "no-store" });
     } catch (error) {
         return null;
     }

@@ -12,7 +12,7 @@
 #define BME_CS         (5)
 #define LED_PIN        (12)
 #define RADIO_ADDR     (3)
-#define TX_INTERVAL_MS (5000)
+#define TX_INTERVAL_MS (1800000)
 
 /**
  * @brief Data structure to hold all of our weather station data

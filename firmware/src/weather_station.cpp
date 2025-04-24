@@ -21,7 +21,6 @@
 #define RTD_CS   (22)
 #define BME_CS   (5)
 #define LED_PIN  (12)
-#define RADIO_RST (13)
 #define LIGHT_PIN (32)
 #define WATER_PIN (35)
 
@@ -117,15 +116,6 @@ hal_get_gas_sensor() {
 }
 
 void
-reset_radio(int rstPin) {
-
-    digitalWrite(rstPin, LOW);
-    // 100 ms as per datasheet + a little
-    delay(100);
-    digitalWrite(rstPin, HIGH);
-}
-
-void
 send_cmd(const String& str) {
     Serial2.print(str + "\r\n");
 }
@@ -197,7 +187,6 @@ ws_init() {
     Serial2.begin(115200);
 
     // Setup radio
-    reset_radio(RADIO_RST);
     ret |= set_address(0);
 
     ret |= hal_setup_rtd_board();
