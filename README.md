@@ -24,5 +24,5 @@ The source code for the Bradley Weather Station website/api/firmware/broker. The
 - Grace T.
 
 **Spring 2025**
--Matthew V.
--Riley P.
+- Matthew V.
+- Riley P.
