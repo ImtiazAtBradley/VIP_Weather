@@ -27,6 +27,7 @@
 Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key)
     : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path)
 {
+   // TODO: Add logging here
 }
 
 bool

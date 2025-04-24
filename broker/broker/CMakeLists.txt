@@ -9,6 +9,7 @@ set (SRCS
 	"./src/broker.cpp"
 	"./src/MessageParse.cpp"
 	"./src/utils.cpp"
+	"./src/wslogger.cpp"
 	"./main.cpp"
 )
 

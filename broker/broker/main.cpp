@@ -6,9 +6,11 @@
 #include <regex>
 #include <sys/stat.h>
 #include <cstdlib>
+
 #include "utils.h"
 #include "broker.h"
 #include "constants.h"
+#include "wslogger.h"
 
 // ============================ MAIN PROGRAM ============================
 
