@@ -28,6 +28,7 @@ Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std:
     : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path)
 {
 }
+
 bool
 Broker::serialFileGood()
 {
@@ -147,12 +148,12 @@ Broker::runTasks()
       std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
       if (response)
       {
-         std::cout << "[DEBUG (" << GetUnixTimestamp() <<")] Parsed weather data: T:" << response->m_data.m_temp_c
+         std::cout << "[DEBUG (" << GetUnixTimestamp() << ")] Parsed weather data: T:" << response->m_data.m_temp_c
                    << " H:" << response->m_data.m_humid << " P:" << response->m_data.m_pressure_kpa
-                   << " R:" << response->m_data.m_isRaining << " L:" << response->m_data.m_lightLevel << "\n";
+                   << "G:" << response->m_data.m_gasKOhms << " R:" << response->m_data.m_anRaining
+                   << " L:" << response->m_data.m_anLightLevel << "\n";
          std::cout << "Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
                    << " SNR:" << response->m_snr << "\n";
-
 
          if (!Broker::PostToAPI(response->m_data, m_url, m_apiKey))
          {
@@ -180,35 +181,25 @@ Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
    struct curl_slist *hs = NULL;
    char authorization[MAX_HEAD_LEN] = {0};
    char jsonData[MAX_JSON_SIZE] = {0};
-   char lightLevel[MAX_LIGHT_LEVEL] = {0};
 
-   // Translate light level from enum to string key
-   switch (data.m_lightLevel)
-   {
-      case LightLevel::SUNNY:
-         strcpy(lightLevel, "SUNNY");
-         break;
-      case LightLevel::DARK:
-         strcpy(lightLevel, "DARK");
-         break;
-   }
-
-   snprintf(jsonData, MAX_JSON_SIZE, 
-      "{"
-         "\"timestamp\":%ld,"
-         "\"temp_c\":%0.2f,"
-         "\"humid_prcnt\":%0.2f,"
-         "\"pressure_kpa\":%0.2f,"
-         "\"is_raining\":%d,"
-         "\"light_level\":\"%s\""
-      "}", 
-      GetUnixTimestamp(),
-      data.m_temp_c,
-      data.m_humid,
-      data.m_pressure_kpa,
-      data.m_isRaining,
-      lightLevel
-   );
+   snprintf(jsonData,
+            MAX_JSON_SIZE,
+            "{"
+            "\"timestamp_unix_ms\":%ld,"
+            "\"temp_c\":%0.2f,"
+            "\"humid_prcnt\":%0.2f,"
+            "\"pressure_kpa\":%0.2f,"
+            "\"gas_kohms\":%0.2f,"
+            "\"rain_an\":%d,"
+            "\"light_an\":\"%d\""
+            "}",
+            GetUnixTimestamp(),
+            data.m_temp_c,
+            data.m_humid,
+            data.m_pressure_kpa,
+            data.m_gasKOhms,
+            data.m_anRaining,
+            data.m_anLightLevel);
 
    if (strlen(jsonData) > MAX_JSON_SIZE)
    {

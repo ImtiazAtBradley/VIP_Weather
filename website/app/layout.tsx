@@ -1,5 +1,5 @@
 import '@/app/ui/global.css';
-import WeatherStationLogo from "./ui/weather-station-logo";
+import WeatherStationNav from "./ui/weather-station-nav";
 import { RedHatDisplay } from './ui/fonts';
 
 export default function RootLayout({
@@ -11,10 +11,10 @@ export default function RootLayout({
 		<html lang="en">
 			<title>BECC Weather - ECE398</title>
 			<body>
-				<div className='flex flex-col h-full'>
+				<div className='flex flex-col'>
 					<main className={`flex flex-col md:p-6 mb-auto p-2 ${RedHatDisplay.className}`}>
-						<div className="flex itmes-center md:h-28 h-20 rounded-lg bg-red-500 p-4">
-							<WeatherStationLogo />
+						<div className="flex itmes-center p-4">
+							<WeatherStationNav />
 						</div>
 						{children}
 					</main>
@@ -24,24 +24,10 @@ export default function RootLayout({
 							<div className="max-w-2xl mx-auto text-white py-10 px-4 md:px-0">
 								<div className="text-center">
 									<h3 className="text-3xl">A Vertically Integrated Projects Design</h3>
+									<p className='text-red text-red-100'>Report any issues to: <a target='_blank' className='underline hover:text-red-50' href="https://github.com/ImtiazAtBradley/VIP_Weather/issues">our GitHub</a></p>
 									<p className='text-red text-red-300'>Designed and realized by the ECE 398 weather station group</p>
-									<p className='text-red text-red-300'>Electrical & Computer Engineering Department 2024</p>
+									<p className='text-red text-red-300'>Electrical & Computer Engineering Department 2025</p>
 									<p className='text-red text-red-300'>Bradley University</p>
-								</div>
-								<div className="mt-12 flex flex-col sm:flex-row justify-center items-center text-sm text-white">
-									<a href="/about"><span className="px-2">About</span></a>
-									<a href="/contact">
-										<span className="sm:px-2 sm:border-l">Contact</span>
-									</a>
-									<a target="_blank" href="https://litemage.github.io/vip-weather-docs/">
-										<span className="sm:px-2 sm:border-l">Documentation</span>
-									</a>
-									<a href="/data-collection">
-										<span className="sm:px-2 sm:border-l">Data Policy</span>
-									</a>
-									<a href="https://github.com/ImtiazAtBradley/VIP_Weather" target='_blank'>
-										<span className="sm:px-2 sm:border-l">GitHub</span>
-									</a>
 								</div>
 							</div>
 						</div>

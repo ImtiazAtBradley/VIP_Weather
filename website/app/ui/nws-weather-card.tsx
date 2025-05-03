@@ -1,24 +1,23 @@
 import { WiDaySunny } from "react-icons/wi"
 import { HiMoon } from "react-icons/hi";
+import {NWSData} from "@/app/lib/fetch-nws"
 
-export default function WeatherCard({ temp_f, humid, pressure_kpa, light_level }: { temp_f: number, humid: number, pressure_kpa: number, light_level: string }) {
-
-    let displaySunny = light_level == "SUNNY";
+export default function NWSWeatherCard({nwsData} : {nwsData: NWSData}) {
 
     return (
         <div className="mt-3 mb-3 p-10">
             <div className="flex md:flex-row flex-col items-center">
-                <WeatherIcon light_level={light_level} />
+                <WeatherIcon light_level="SUNNY" />
                 <div className="justify-evenly">
-                    <span className="text-6xl font-semibold text-slate-600">{temp_f}&deg;F</span>
+                    <span className="text-6xl font-semibold text-slate-600">{nwsData.temp}&deg;F</span>
                     <div className="flex flex-col text-slate-400 text-sm">
                         <div className="flex flex-row justify-between">
                             <span>Humidity:</span>
-                            <span>{humid}%</span>
+                            <span>{nwsData.humid}%</span>
                         </div>
                         <div className="flex flex-row justify-between">
                             <span>Pressure:</span>
-                            <span>{pressure_kpa}kPa</span>
+                            <span>{nwsData.pres}kPa</span>
                         </div>
                     </div>
                 </div>

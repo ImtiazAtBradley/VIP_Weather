@@ -11,17 +11,28 @@
 #include <weather_station.h>
 #include <Arduino.h>
 #include <Adafruit_Sensor.h>
-#include <Adafruit_BME280.h>
+#include <Adafruit_BME680.h>
 #include <weather_station.h>
+#include "PwFusion_MAX31865.h"
 
-#define LED_PIN (19)
+#define SPI_SCK  (18)
+#define SPI_MISO (19)
+#define SPI_MOSI (23)
+#define RTD_CS   (22)
+#define BME_CS   (5)
+#define LED_PIN  (12)
+#define LIGHT_PIN (32)
+#define WATER_PIN (35)
 
 /* ========================================================================== */
 /*                              STATIC VARIABLES                              */
 /* ========================================================================== */
 
 // BME280
-Adafruit_BME280 bme; // I2C
+Adafruit_BME680 bme680(BME_CS, &SPI);
+
+// RTD BOARD (MAX31865)
+MAX31865 rtd;
 
 /* ========================================================================== */
 /*                              PRIVATE FUNCTIONS                             */
@@ -36,27 +47,46 @@ hal_get_light_level() {
 int
 hal_get_water_level() {
     //waterPin = 33 max: ?,    min: 0
-    return analogRead(33);
+    return analogRead(WATER_PIN);
 }
 
 void
 hal_setup_digital() {
+    pinMode(BME_CS, OUTPUT);
+    pinMode(RTD_CS, OUTPUT);
     pinMode(LED_PIN, OUTPUT);
 }
 
 bool
 hal_setup_bme() {
-    return bme.begin(BME280_ADDRESS_ALTERNATE);
+    bool rc = !bme680.begin();
+
+    rc |= !bme680.setTemperatureOversampling(BME680_OS_8X);
+    rc |= !bme680.setHumidityOversampling(BME680_OS_2X);
+    rc |= !bme680.setPressureOversampling(BME680_OS_4X);
+    rc |= !bme680.setIIRFilterSize(BME680_FILTER_SIZE_3);
+    rc |= !bme680.setGasHeater(320, 150);
+
+    return !rc;
+}
+
+bool
+hal_setup_rtd_board() {
+    rtd.begin(RTD_CS, RTD_4_WIRE, RTD_TYPE_PT100);
+    return true;
 }
 
 /**
- * \brief Gets the temperature from hardware of the DHT11 sensor
- *
- * \return float Temperature,in degrees celsius.
+ * @brief Get temperature from MAX31865
+ * 
+ * @return float Temperature, in degrees C
  */
 float
-hal_get_temperature_bme() {
-    return bme.readTemperature();
+hal_get_rtd_temp() {
+    // Read from register
+    rtd.sample();
+    // NOTE: Using linear approximation and not the Callendar–Van Dusen equation
+    return rtd.getTemperature();
 }
 
 /**
@@ -66,7 +96,7 @@ hal_get_temperature_bme() {
  */
 float
 hal_get_humidity_bme() {
-    return bme.readHumidity();
+    return bme680.readHumidity();
 }
 
 /**
@@ -76,21 +106,18 @@ hal_get_humidity_bme() {
  */
 float
 hal_get_pressure_bme() {
-    return bme.readPressure();
+    return bme680.readPressure();
 }
 
-void
-reset_radio(int rstPin) {
-
-    digitalWrite(rstPin, LOW);
-    // 5 ms should be more than enough
-    delay(100);
-    digitalWrite(rstPin, HIGH);
+//returns gas sensor analog value in ohms
+uint32_t
+hal_get_gas_sensor() {
+    return bme680.readGas();
 }
 
 void
 send_cmd(const String& str) {
-    Serial1.print(str + "\r\n");
+    Serial2.print(str + "\r\n");
 }
 
 // True on success, false on fail - quick & dirty
@@ -99,24 +126,22 @@ set_address(int address) {
     int retry = 0;
     int rxAttempts = 0;
     String rx;
-    while (retry <= 3) {
-        send_cmd("AT+ADDRESS=" + String(address));
-        // Wait for response
-        while (rxAttempts <= 10) {
-            rx += Serial1.readString();
-            rx.trim();
-            if (rx == "+OK") {
-                // Successfully configured
-                return true;
-            }
-            delay(100);
-            rxAttempts++;
-        }
 
-        retry++;
+    send_cmd("AT+ADDRESS=" + String(address));
+    // Wait before reading
+    delay(1000);
+
+    rx = Serial2.readString();
+    rx.trim();
+
+    while (rx != "+OK")
+    {
+        send_cmd("AT+ADDRESS=" + String(address));
+        delay(1000);
+        rx = Serial2.readString();
     }
 
-    return false;
+    return true;
 }
 
 void
@@ -126,7 +151,7 @@ send_data(const int address, const String& data) {
 }
 
 void
-hal_set_led(bool ledState) {
+hal_set_stat_led(bool ledState) {
     digitalWrite(LED_PIN, ledState);
 }
 
@@ -151,22 +176,23 @@ hal_set_led(bool ledState) {
  */
 bool
 ws_init() {
+    bool ret = true;
 
     hal_setup_digital();
 
-    hal_set_led(1);
+    hal_set_stat_led(1);
 
-    Wire.begin(21, 22, 5000);
+    SPI.begin(SPI_SCK, SPI_MISO, SPI_MOSI);
 
-    Serial1.begin(115200);
+    Serial2.begin(115200);
 
     // Setup radio
-    reset_radio(13);
-    if (!set_address(0)) {
-        return false;
-    }
+    ret |= set_address(0);
 
-    return hal_setup_bme();
+    ret |= hal_setup_rtd_board();
+    ret |= hal_setup_bme();
+
+    return ret;
 }
 
 /**
@@ -177,7 +203,7 @@ ws_init() {
 float
 ws_get_temperature() {
 
-    return hal_get_temperature_bme();
+    return hal_get_rtd_temp();
 }
 
 /**
@@ -200,27 +226,18 @@ ws_get_pressure() {
     return hal_get_pressure_bme() / 1000.0f; // Convert o kPa
 }
 
-bool
-ws_is_raining() {
-    if (hal_get_water_level() > 0) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-bool
-ws_is_sunny() {
-    return hal_get_light_level() > 850;
+float
+ws_get_gas_sensor() {
+    return hal_get_gas_sensor() / 1000.0f; //Convert to kOhms
 }
 
 int
-ws_raw_raining() {
+ws_get_analog_water() {
     return hal_get_water_level();
 }
 
 int
-ws_raw_light() {
+ws_get_analog_light() {
     return hal_get_light_level();
 }
 
@@ -231,7 +248,7 @@ ws_tx_data(int address, const String& data) {
 
 void
 ws_set_status_led(bool ledState) {
-    hal_set_led(ledState);
+    hal_set_stat_led(ledState);
 }
 
 void

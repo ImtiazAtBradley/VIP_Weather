@@ -49,7 +49,7 @@ void ApiTest()
     // API Test
     PrintTestHeader(API_TEST);
 
-    std::string rxStr = "+RCV=0,27,T22.72|H37.07|P100.35|R0|L1,-60,37";
+    std::string rxStr = "+RCV=0,27,T22.72|H37.07|P100.35|G10.3|R1234|L4321,-60,37";
     std::optional<MessageResponse> res = MessageParse::parseMessage(rxStr);
     
     if (!res)
@@ -58,7 +58,7 @@ void ApiTest()
     }
     else
     {
-        rc = Broker::PostToAPI(res->m_data, "https://weather.jacobsimeone.net/api/envdata", "fake-api-key");
+        rc = Broker::PostToAPI(res->m_data, "http://localhost:27500/api/envdata", "fake-api-key");
     }
 
     PrintTestResult(API_TEST, rc, "No error desc");
