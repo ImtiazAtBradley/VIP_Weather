@@ -6,6 +6,7 @@ import { DateTime } from "luxon";
 import { existsSync } from "fs"
 import MaintenanceCard from "./ui/maintenance-card";
 import { GetNWSData } from "./lib/fetch-nws";
+import Alert from "./ui/alert";
 
 function checkMaitnenceFile(): boolean {
   // Maintenance file will have the following path:
@@ -28,6 +29,7 @@ async function getEnvironmentData() {
     return null
   }
 
+  const minDate = DateTime.now().minus({hours: 48})
   const data = await res.json()
 
   // Return an array with relative times + temp/pres/humid data
@@ -42,11 +44,14 @@ async function getEnvironmentData() {
   for (let i = 0; i < data.weatherData.length; i++) {
     let element = data.weatherData[i]
 
-
-
     // Timestamp returned in <TIMESTAMP>-<SAMPLE> format - split into just timestamp (ms)
     let nowUtc = DateTime.fromMillis(parseInt(element.timestamp_unix_ms))
     let nowLocal = nowUtc.setZone("America/Chicago")
+
+    if (nowUtc < minDate)
+    {
+      continue;
+    }
 
     time.push(nowLocal.toISO())
     temp_f.push(Math.round((element.temp_c * 9 / 5 + 32) * 10) / 10)
@@ -124,22 +129,9 @@ export default async function Page() {
 
   return (
     <>
-      <div className="mt-5" role="alert">
-        <div className="bg-orange-500 text-white font-bold rounded-t px-4 py-2">
-          Weather Station Data Reliablility
-        </div>
-        <div className="border border-t-0 border-orange-400 rounded-b bg-orange-100 px-4 py-3 text-orange-700">
-          <p>The BECC Weather Station is deployed in a sub-optimal location and is reporting temperatures hotter than ambient in the presence of high solar intensity.</p>
-        </div>
-      </div>
-      <div className="mt-5" role="alert">
-        <div className="bg-green-500 text-white font-bold rounded-t px-4 py-2">
-          News!
-        </div>
-        <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-          <p>We've made some improvments around the site, including a <a className="hover:underline text-red-700" href="/news">news</a> page where we can more effectively communicate with users!</p>
-        </div>
-      </div>
+
+      <Alert color="orange" title="Data Errors"  msg="API is reporting some all-zero data points. Developers are working to fix this soon."/>
+
       <div className="flex justify-center">
         <WeatherCard temp_f={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} light_level={currentLightLevel} />
       </div>
@@ -147,7 +139,7 @@ export default async function Page() {
       {TheBeccWeatherStation()}
 
       <div className="flex mt-5 justify-center md:text-5xl text-3xl">
-        <h1 className="text-center">Historical Environment Data</h1>
+        <h1 className="text-center">Last Two Days of Data</h1>
       </div>
       <Charts time={weatherData.times} temperature={weatherData.temp_f} humidity={weatherData.humidity_prcnt} pressure={weatherData.pressure_kpa} gas={weatherData.gas_an} lightLevel={weatherData.light_an} rain={weatherData.rain_an} />
       <div className="px-10">
