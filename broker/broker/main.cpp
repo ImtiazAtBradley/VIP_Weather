@@ -12,6 +12,10 @@
 #include "constants.h"
 #include "wslogger.h"
 
+#define LOG_FILE      "/var/log/bu-weather/broker.log" // path to log file
+#define LOG_FILE_SIZE 1024 * 10                        // Size of each log file
+#define LOG_FILE_NUM  5                                // Number of log files
+
 // ============================ MAIN PROGRAM ============================
 
 static void
@@ -59,7 +63,8 @@ main(int argc, char *argv[])
 
    // Hacky, but works for our purposes - check for ascii only in the future too
    auto check_whitespace = [](char x) { return x == ' ' || x == '\n' || x == '\r' || x == '\t'; };
-   bool contains_whitespace = std::find_if(key.value().begin(), key.value().end(), check_whitespace) != key.value().end();
+   bool contains_whitespace =
+       std::find_if(key.value().begin(), key.value().end(), check_whitespace) != key.value().end();
 
    if (key == "")
    {
@@ -73,9 +78,16 @@ main(int argc, char *argv[])
       FailOut();
    }
 
-   // Run broker scheduler every 20ms
-   Broker broker =
-       Broker(std::chrono::milliseconds(1000), std::string(argv[1]), url, key.value());
+   // Try to create log file for broker
+
+   // Run broker scheduler every 1000ms
+   Broker broker = Broker(std::chrono::milliseconds(1000),
+                          std::string(argv[1]),
+                          url,
+                          key.value(),
+                          LOG_FILE,
+                          LOG_FILE_SIZE,
+                          LOG_FILE_NUM);
 
    // Print program header
    Broker::printProgramHeader();

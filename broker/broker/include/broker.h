@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MessageResponse.h"
+#include "wslogger.h"
 
 #include <chrono>
 #include <string>
@@ -14,7 +15,13 @@ class Broker
    static void printProgramHeader();
    static void help();
 
-   Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key);
+   Broker(std::chrono::milliseconds schedulerTimeMs,
+          std::string path,
+          std::string url,
+          std::string key,
+          std::filesystem::path logFilePath,
+          int logFileSize,
+          int numLogFiles);
    ~Broker();
    bool serialFileGood();
    bool runScheduler();
@@ -27,6 +34,8 @@ class Broker
 
    int m_fd = -1;
    bool m_serialUp = false;
+
+   WSLogger m_wsLog;
    std::string m_url;
    std::string m_apiKey;
    std::filesystem::path m_filePath;

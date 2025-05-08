@@ -24,10 +24,10 @@
 #define MAX_HEAD_LEN    (50)  // Maximum HTTP header len for this application
 #define MAX_LIGHT_LEVEL (10)  // Maximum length of light level string
 
-Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key)
-    : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path)
+Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key, std::filesystem::path logFilePath, int logFileSize, int numLogFiles)
+    : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path), m_wsLog{logFilePath, logFileSize, numLogFiles}
 {
-   // TODO: Add logging here
+   // TODO Add logging here
 }
 
 bool

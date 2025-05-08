@@ -7,10 +7,12 @@
 
 #include <iostream>
 #include <optional>
+#include <sys/stat.h>
 
 #include "curl/curl.h"
 
 #include "broker.h"
+#include "wslogger.h"
 #include "MessageParse.h"
 #include "MessageResponse.h"
 #include "WeatherData.h"
@@ -18,6 +20,7 @@
 #include "utils.h"
 
 #define API_TEST ("API Test")
+#define LOG_TEST ("Logging Test Using sbd")
 #define FILE_READ_TEST ("File Read Test")
 
 // TEST LIBRARY
@@ -64,6 +67,27 @@ void ApiTest()
     PrintTestResult(API_TEST, rc, "No error desc");
 }
 
+void LoggingTest()
+{
+    PrintTestHeader(LOG_TEST);
+    bool rc = true;
+
+    if (mkdir("./bu-weather-station", 0755) != 0)
+    {
+        rc = false;
+    }
+    else
+    {
+        auto logger = WSLogger("./bu-weather-station/broker.log", 1024 * 10, 5);
+        logger.Debug("This is a debug message");
+        logger.Info("This is a info message");
+        logger.Error("This is a error message");
+    }
+
+    PrintTestResult(LOG_TEST, rc, "Potentially failed to create directory");
+
+}
+
 void FileReadTest()
 {
     bool rc = false;
@@ -86,7 +110,10 @@ int main()
     std::cout << "Starting Tests\n";
 
     // Makes a network call - only use this test if absolutely necessary
-    ApiTest();
+    // ApiTest();
+
+    // Perform logging test
+    LoggingTest();
 
     // FileReadTest();
 }

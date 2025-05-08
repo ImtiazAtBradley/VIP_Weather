@@ -3,16 +3,19 @@
 #include "utils.h"
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/sinks/stdout_sinks.h>
 
 #include <sstream>
 
 WSLogger::WSLogger(std::filesystem::path logPath, int maxFileSize, int maxFiles)
 {
-   m_sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_st>("ws-broker-file", logPath, maxFileSize, maxFiles));
-   m_sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_st>(spdlog::stdout_color_st("ws-broker-console")));
+   std::vector<spdlog::sink_ptr> sinks;
 
-   m_sbdlog = std::make_shared<spdlog::logger>("ws-logger", begin(m_sinks), end(m_sinks));
+   sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_st>(logPath.string(), maxFileSize, maxFiles));
+   sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+
+
+   m_spdlog = std::make_shared<spdlog::logger>("ws-logger", begin(sinks), end(sinks));
 }
 
 void
@@ -44,13 +47,13 @@ WSLogger::writeLog(std::string msg, WSLogLevel lvl)
    switch (lvl)
    {
    case WSLogLevel::DEBUG:
-      m_sbdlog->debug(logMsg);
+      m_spdlog->debug("Testing");
       break;
    case WSLogLevel::INFO:
-      m_sbdlog->info(logMsg);
+      m_spdlog->info("Testing");
       break;
    case WSLogLevel::ERROR:
-      m_sbdlog->error(logMsg);
+      m_spdlog->error("Testing");
       break;
    }
 

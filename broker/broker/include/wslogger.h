@@ -16,8 +16,7 @@ class WSLogger
  private:
    /* data */
    void writeLog(std::string msg, WSLogLevel lvl);
-   std::vector<spdlog::sink_ptr> m_sinks;
-   std::shared_ptr<spdlog::logger> m_sbdlog;
+   std::shared_ptr<spdlog::logger> m_spdlog;
  public:
   WSLogger(std::filesystem::path logPath, int maxFileSize, int maxFiles);
    void Debug(std::string msg);

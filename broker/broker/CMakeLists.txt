@@ -18,8 +18,14 @@ set (
 	"./src/broker.cpp"
 	"./src/MessageParse.cpp"
 	"./src/utils.cpp"
+	"./src/wslogger.cpp"
 	"./test/test.cpp"
 )
+
+if(NOT TARGET spdlog)
+    # Stand-alone build
+    find_package(spdlog REQUIRED)
+endif()
 
 # Add executable with sources
 add_executable(bradley-cast-broker ${SRCS})
@@ -31,8 +37,8 @@ target_include_directories(bradley-cast-broker PUBLIC "include/")
 target_include_directories(bradley-cast-broker-test PUBLIC "include/")
 
 # curl library
-target_link_libraries(bradley-cast-broker curl)
-target_link_libraries(bradley-cast-broker-test curl)
+target_link_libraries(bradley-cast-broker PRIVATE curl spdlog::spdlog)
+target_link_libraries(bradley-cast-broker-test PRIVATE curl spdlog::spdlog)
 
 # C math
 # target_link_libraries(target m)

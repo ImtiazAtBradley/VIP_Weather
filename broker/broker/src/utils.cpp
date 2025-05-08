@@ -22,6 +22,8 @@ std::string GetIso8601Time()
     time(&now);
     char buf[sizeof "2011-10-08T07:07:09Z"];
     strftime(buf, sizeof buf, "%FT%TZ", gmtime(&now));
+
+    return std::string(buf);
 }
 
 /*
