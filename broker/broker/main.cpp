@@ -78,7 +78,14 @@ main(int argc, char *argv[])
       FailOut();
    }
 
-   // Try to create log file for broker
+   // Check if log file directory exists
+   if (!std::filesystem::is_directory(std::filesystem::path(LOG_FILE).parent_path()))
+   {
+      if (mkdir(LOG_FILE, 0755) != 0)
+      {
+         std::cerr << "Failed to initialize log file containing directory at: " << LOG_FILE << "\nCheck that this program can create that directory";
+      }
+   }
 
    // Run broker scheduler every 1000ms
    Broker broker = Broker(std::chrono::milliseconds(1000),
@@ -106,7 +113,7 @@ main(int argc, char *argv[])
    // HACK: Write to radio to set it up
    broker.writeToPort("AT+ADDRESS=1\r\n");
 
-   std::cout << "Starting Broker...\n";
+   broker.m_wsLog.Info("Starting broker");
 
    while (1)
    {

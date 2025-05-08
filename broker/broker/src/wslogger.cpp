@@ -41,19 +41,16 @@ WSLogger::Error(std::string msg)
 void
 WSLogger::writeLog(std::string msg, WSLogLevel lvl)
 {
-   std::stringstream logMsg{};
-   logMsg << "[" << GetIso8601Time() << "] " << msg;
-
    switch (lvl)
    {
    case WSLogLevel::DEBUG:
-      m_spdlog->debug("Testing");
+      m_spdlog->debug(msg);
       break;
    case WSLogLevel::INFO:
-      m_spdlog->info("Testing");
+      m_spdlog->info(msg);
       break;
    case WSLogLevel::ERROR:
-      m_spdlog->error("Testing");
+      m_spdlog->error(msg);
       break;
    }
 

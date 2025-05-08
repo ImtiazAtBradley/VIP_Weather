@@ -11,7 +11,6 @@ class Broker
 {
  public:
    // STATIC MEMBERS
-   static bool PostToAPI(WeatherData data, std::string url, std::string apiKey);
    static void printProgramHeader();
    static void help();
 
@@ -29,13 +28,15 @@ class Broker
    bool writeToPort(const std::string &val);
    std::string readFromPort();
 
+   WSLogger m_wsLog;
+
  private:
    void runTasks();
+   bool postToAPI(WeatherData data, std::string url, std::string apiKey);
 
    int m_fd = -1;
    bool m_serialUp = false;
 
-   WSLogger m_wsLog;
    std::string m_url;
    std::string m_apiKey;
    std::filesystem::path m_filePath;
