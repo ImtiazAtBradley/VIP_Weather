@@ -41,6 +41,38 @@ export default function Page()
         </>
     );
 
+    let summer_maintenance = (
+        <>
+            <div className="space-y-2">
+                <p>
+                    The BU Weather Station team has been hard at work making some
+                    end-of-semester improvements to the station, and have
+                    gotten the station to a point where we are happy with the data
+                    it is currently exporting. A bad sensor was finally replaced on
+                    2025-06-17, so the station is now back to reporting accurate data.
+                </p>
+                <p>
+                    Currently, this project is entering maintenance mode in order
+                    to make way for some major hardware overhauls that will allow
+                    us to make all of the changes discussed in the post below.
+                </p>
+                <p>
+                    Our services will remain available, and this station maintained
+                    until a trasition is made to new hardware and software. The 
+                    current API will become "legacy" but will still be compatible
+                    with the new version of this station when it comes out.
+                </p>
+                <p>
+                    If you have any questsions, comments, or concearns, reach
+                    us on our <b>Contact</b> page above.
+                </p>
+                <p>
+                    - Jacob S, Lead Student Developer - 2025-06-18
+                </p>
+            </div>
+        </>
+    );
+
     return (
         <>
             <div className="flex flex-col py-10 xl:mx-auto xl:w-1/2">
@@ -50,7 +82,10 @@ export default function Page()
                 </p>
                 <hr className="mt-5" />
 
-                <div>
+                <div className="space-y-5">
+                    <NewsItem 
+                    title="Summer 25' and Future" 
+                    content={summer_maintenance} />
                     <NewsItem 
                     title="End-Of-Semester Improvements" 
                     content={endOfSemesterContent} />

@@ -100,10 +100,9 @@ function TheBeccWeatherStation() {
 
 export default async function Page() {
 
-  let nwsData = await GetNWSData();
-
   // Check if the maintenance file is present, if so, show under maintenance screen
   if (checkMaitnenceFile()) {
+    let nwsData = await GetNWSData();
     return (
       <div className="flex justify-center">
         <MaintenanceCard nwsData={nwsData}/>
@@ -125,15 +124,14 @@ export default async function Page() {
   let currentPressure = weatherData.pressure_kpa.slice(-1)[0]
   let currentHumidity = weatherData.humidity_prcnt.slice(-1)[0]
   let currentLightLevel = weatherData.light_an.slice(-1)[0]
+  let currentRainAn = weatherData.rain_an.slice(-1)[0]
   let lastUpdated = weatherData.times.slice(-1)[0]
 
   return (
     <>
-
-      <Alert color="orange" title="Data Errors"  msg="API is reporting some all-zero data points. Developers are working to fix this soon."/>
-
+      <Alert color="red" title="New News!" msg="Check out or latest post by navigating over the 'News' section of our website. Thank you!" />
       <div className="flex justify-center">
-        <WeatherCard temp_f={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} light_level={currentLightLevel} />
+        <WeatherCard temp_f={currentTemp} humid={currentHumidity} pressure_kpa={currentPressure} light_level={currentLightLevel} rain_level={currentRainAn} />
       </div>
 
       {TheBeccWeatherStation()}
