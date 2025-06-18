@@ -23,7 +23,7 @@ export default function RootLayout({
 						<div className=" bg-red-600">
 							<div className="max-w-2xl mx-auto text-white py-10 px-4 md:px-0">
 								<div className="text-center">
-									<h3 className="text-3xl">A Vertically Integrated Projects Design</h3>
+									<a target='_blank' href='https://litemage.github.io/bu-vip-website' className="text-3xl hover:underline text-red-50">A Vertically Integrated Projects Design</a>
 									<p className='text-red text-red-100'>Report any issues to: <a target='_blank' className='underline hover:text-red-50' href="https://github.com/ImtiazAtBradley/VIP_Weather/issues">our GitHub</a></p>
 									<p className='text-red text-red-300'>Designed and realized by the ECE 398 weather station group</p>
 									<p className='text-red text-red-300'>Electrical & Computer Engineering Department 2025</p>
