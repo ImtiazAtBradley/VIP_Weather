@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <string.h>
 
 // Libs
 #include "curl/curl.h"
@@ -24,9 +25,10 @@
 #define MAX_HEAD_LEN    (50)  // Maximum HTTP header len for this application
 #define MAX_LIGHT_LEVEL (10)  // Maximum length of light level string
 
-Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key)
-    : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path)
+Broker::Broker(std::chrono::milliseconds schedulerTimeMs, std::string path, std::string url, std::string key, std::filesystem::path logFilePath, int logFileSize, int numLogFiles)
+    : m_url(url), m_apiKey(key), m_frequency_ms(schedulerTimeMs), m_filePath(path), m_wsLog{logFilePath, logFileSize, numLogFiles}
 {
+   // TODO Add logging here
 }
 
 bool
@@ -141,23 +143,29 @@ Broker::runTasks()
 {
    // Try to receive from buffer, and print to standard out
    std::string rcv = readFromPort();
+   std::stringstream logBuf; 
 
    if (rcv.size() > 0)
    {
-      std::cout << "[DEBUG] Raw from radio:" << rcv;
+      m_wsLog.Debug("Raw from radio: " + rcv);
       std::optional<MessageResponse> response = MessageParse::parseMessage(rcv);
       if (response)
       {
-         std::cout << "[DEBUG (" << GetUnixTimestamp() << ")] Parsed weather data: T:" << response->m_data.m_temp_c
+         logBuf << "Parsed weather data: T:" << response->m_data.m_temp_c
                    << " H:" << response->m_data.m_humid << " P:" << response->m_data.m_pressure_kpa
                    << "G:" << response->m_data.m_gasKOhms << " R:" << response->m_data.m_anRaining
                    << " L:" << response->m_data.m_anLightLevel << "\n";
-         std::cout << "Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
-                   << " SNR:" << response->m_snr << "\n";
+         m_wsLog.Debug(logBuf.str());
+         logBuf.clear();
 
-         if (!Broker::PostToAPI(response->m_data, m_url, m_apiKey))
+         logBuf << "Network Data ID: " << response->m_id << " RSSI:" << response->m_rssi
+                   << " SNR:" << response->m_snr << "\n";
+         m_wsLog.Debug(logBuf.str());
+
+
+         if (!postToAPI(response->m_data, m_url, m_apiKey))
          {
-            std::cerr << "[ERROR] Failed to post data to API\n";
+            m_wsLog.Error("Failed to post data to API\n");
          }
       }
    }
@@ -173,7 +181,7 @@ Broker::~Broker()
 
 // Yes, a bit of a C/CPP mix, as the CURL code was originally written in C
 bool
-Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
+Broker::postToAPI(WeatherData data, std::string url, std::string apiKey)
 {
    CURL *curl;
    CURLcode res;
@@ -181,6 +189,7 @@ Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
    struct curl_slist *hs = NULL;
    char authorization[MAX_HEAD_LEN] = {0};
    char jsonData[MAX_JSON_SIZE] = {0};
+   std::stringstream logBuf;
 
    snprintf(jsonData,
             MAX_JSON_SIZE,
@@ -204,7 +213,9 @@ Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
    if (strlen(jsonData) > MAX_JSON_SIZE)
    {
       // JSON data is too big - for whatever reason
-      fprintf(stderr, "JSON data is too long\n");
+      logBuf.clear();
+      logBuf << "Constructed JSON data larger than MAX size. Size: " << strlen(jsonData) << " Max: " << MAX_JSON_SIZE;
+      m_wsLog.Error(logBuf.str());
       return -1;
    }
 
@@ -212,7 +223,9 @@ Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
    res = curl_global_init(CURL_GLOBAL_ALL);
    if (res != CURLE_OK)
    {
-      fprintf(stderr, "Failed to initialize libcurl \"%s\" [%d]\n", curl_easy_strerror(res), res);
+      logBuf.clear();
+      logBuf << "Failed to initialize libcurl " << curl_easy_strerror(res) << " RES: " << res;
+      m_wsLog.Error(logBuf.str());
       return 1;
    }
 
@@ -220,7 +233,7 @@ Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
    curl = curl_easy_init();
    if (curl == NULL)
    {
-      fprintf(stderr, "Failed to get CURL handle\n");
+      m_wsLog.Error("Failed to get CURL handle");
       return 1;
    }
 
@@ -235,13 +248,18 @@ Broker::PostToAPI(WeatherData data, std::string url, std::string apiKey)
    // Set the URL and the post data
    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
+   // Suppress stdout
+   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+
    // Set post data - JSON would go here, describing weather data
    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonData);
 
    res = curl_easy_perform(curl);
    if (res != CURLE_OK)
    {
-      fprintf(stderr, "Failed to perform HTTP POST transfer: \"%s\" [%d]\n", curl_easy_strerror(res), res);
+      logBuf.clear();
+      logBuf << "Failed to perform HTTP POST transfer: " << curl_easy_strerror(res) << " res: " << res;
+      m_wsLog.Error(logBuf.str());
       return false;
    }
 

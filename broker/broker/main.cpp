@@ -6,9 +6,15 @@
 #include <regex>
 #include <sys/stat.h>
 #include <cstdlib>
+
 #include "utils.h"
 #include "broker.h"
 #include "constants.h"
+#include "wslogger.h"
+
+#define LOG_FILE      "/var/log/bu-weather/broker.log" // path to log file
+#define LOG_FILE_SIZE 1024 * 10                        // Size of each log file
+#define LOG_FILE_NUM  5                                // Number of log files
 
 // ============================ MAIN PROGRAM ============================
 
@@ -57,7 +63,8 @@ main(int argc, char *argv[])
 
    // Hacky, but works for our purposes - check for ascii only in the future too
    auto check_whitespace = [](char x) { return x == ' ' || x == '\n' || x == '\r' || x == '\t'; };
-   bool contains_whitespace = std::find_if(key.value().begin(), key.value().end(), check_whitespace) != key.value().end();
+   bool contains_whitespace =
+       std::find_if(key.value().begin(), key.value().end(), check_whitespace) != key.value().end();
 
    if (key == "")
    {
@@ -71,9 +78,23 @@ main(int argc, char *argv[])
       FailOut();
    }
 
-   // Run broker scheduler every 20ms
-   Broker broker =
-       Broker(std::chrono::milliseconds(1000), std::string(argv[1]), url, key.value());
+   // Check if log file directory exists
+   if (!std::filesystem::is_directory(std::filesystem::path(LOG_FILE).parent_path()))
+   {
+      if (mkdir(LOG_FILE, 0755) != 0)
+      {
+         std::cerr << "Failed to initialize log file containing directory at: " << LOG_FILE << "\nCheck that this program can create that directory";
+      }
+   }
+
+   // Run broker scheduler every 1000ms
+   Broker broker = Broker(std::chrono::milliseconds(1000),
+                          std::string(argv[1]),
+                          url,
+                          key.value(),
+                          LOG_FILE,
+                          LOG_FILE_SIZE,
+                          LOG_FILE_NUM);
 
    // Print program header
    Broker::printProgramHeader();
@@ -92,7 +113,7 @@ main(int argc, char *argv[])
    // HACK: Write to radio to set it up
    broker.writeToPort("AT+ADDRESS=1\r\n");
 
-   std::cout << "Starting Broker...\n";
+   broker.m_wsLog.Info("Starting broker");
 
    while (1)
    {
