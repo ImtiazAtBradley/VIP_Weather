@@ -1,3 +1,7 @@
+# This Repository Has Moved!!!!!
+
+[github.com/ece398-buvip/vip-weather](https://github.com/ece398-buvip/vip-weather)
+
 # Bradley Weather Station - Overview
 
 The source code for the Bradley Weather Station website/api/firmware/broker. The data produced by the station is available at [weather.jacobsimeone.net](https://weather.jacobsimeone.net). 
